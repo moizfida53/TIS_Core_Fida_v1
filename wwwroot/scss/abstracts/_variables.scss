@@ -1,0 +1,102 @@
+// ============================================================================
+// abstracts/_variables.scss
+// Telecom Invoice System — design tokens.
+//
+// HOW BOOTSTRAP OVERRIDE WORKS IN ASP.NET CORE MVC:
+//   This file is imported BEFORE bootstrap in site.scss.
+//   Variables declared here overwrite Bootstrap's own _variables.scss
+//   at compile time — no specificity battles needed.
+//
+// THEME: Deep Navy + Electric Blue (professional telecom palette)
+//   Primary surface  → $brand-primary  #1a3a6e  (deep corporate navy)
+//   CTA / active     → $brand-blue     #2563eb  (vivid electric blue)
+//   Page background  → #f0f4f8         (cool blue-tinted grey)
+// ============================================================================
+
+// ── Brand palette ─────────────────────────────────────────────────────────────
+$brand-primary:       #1a3a6e;   // deep navy  — header bg, admin button
+$brand-primary-dark:  #132d57;   // darker navy — hover states
+$brand-blue:          #2563eb;   // electric blue — active tabs, CTAs, badges
+$brand-blue-light:    #dbeafe;   // blue tint — nav-pill inactive bg
+$brand-navy:          #1a3a6e;   // table headers, section titles (= $brand-primary)
+$brand-navy-mid:      #243e7a;   // gradient secondary stop (modals, overlays)
+
+// ── Semantic / status colors ──────────────────────────────────────────────────
+$color-danger:        #dc3545;
+$color-danger-light:  #fee2e2;
+$color-danger-dark:   #991b1b;
+
+$color-warning:       #d97706;
+$color-warning-light: #fef3c7;
+$color-warning-dark:  #92400e;
+
+$color-success:       #16a34a;
+$color-success-light: #dcfce7;
+$color-success-dark:  #14532d;
+
+$color-info:          #2563eb;   // = $brand-blue (shared alias used in bill components)
+$color-info-light:    #dbeafe;   // = $brand-blue-light
+$color-info-dark:     #1d4ed8;
+
+// Call-type colors (used in mobile overlay cards — keep distinct / vivid)
+$color-purple:        #7c3aed;
+$color-purple-light:  #ede9fe;
+$color-purple-dark:   #5b21b6;
+
+$color-orange:        #ea580c;
+$color-orange-light:  #ffedd5;
+$color-orange-dark:   #9a3412;
+
+// ── Neutrals (cool blue-grey toned) ───────────────────────────────────────────
+$color-page-bg:       #f0f4f8;   // cool blue-tinted page background
+$color-surface:       #ffffff;
+$color-surface-soft:  #f7fafc;
+$color-surface-alt:   #eef2f7;
+$color-border:        #d1dbe8;
+$color-border-light:  #e8edf5;
+$color-text-primary:  $brand-navy;
+$color-text-muted:    #64748b;
+$color-text-hint:     #94a3b8;
+
+// ── Typography ────────────────────────────────────────────────────────────────
+$font-mono: 'Courier New', Courier, monospace;
+
+// ── Spacing & shape ───────────────────────────────────────────────────────────
+$radius-sm:   6px;
+$radius-md:   8px;
+$radius-lg:   10px;
+$radius-xl:   12px;
+$radius-pill: 999px;
+
+// ── Shadows ───────────────────────────────────────────────────────────────────
+$shadow-sm:   0 2px 8px  rgba(0, 0, 0, 0.08);
+$shadow-md:   0 2px 12px rgba(0, 0, 0, 0.07);
+$shadow-lg:   0 4px 24px rgba(0, 0, 0, 0.18);
+$shadow-card: 0 3px 14px rgba(0, 0, 0, 0.09);
+
+// ── Bootstrap variable overrides ──────────────────────────────────────────────
+// These compile INTO Bootstrap before its own _variables.scss runs, so every
+// Bootstrap component (buttons, badges, focus rings) picks up our brand blue.
+$primary:        $brand-blue;    // electric blue for buttons / badges / links
+$body-bg:        $color-page-bg;
+$border-radius:  $radius-md;
+$border-color:   $color-border;
+$font-size-base: 0.875rem;       // 14px base; bumped to 16px at md in _base.scss
+
+// ── TIS Design System — CSS custom properties (runtime tokens) ───────────────
+// These are CSS vars (not Sass vars) so JavaScript and dynamic content can
+// read/write them.  They mirror the semantic values above.
+:root {
+    --teal: #2ab3bf;         --teal-dk: #1e8f99;
+    --teal-lt: #d6f4f6;      --teal-glow: rgba(42, 179, 191, .13);
+    --coal: #3e3e3e;         --coal-mid: #555;    --coal-lt: #777;
+    --white: #fff;           --bg: #f2f5f8;       --s2: #f0f3f6;
+    --bd: #e0e6ed;           --bds: #edf1f5;
+    --tx: #1a1f2e;           --tx2: #5a6475;      --tx3: #96a0ae;
+    --ok: #17a87a;           --warn: #e8a020;     --danger: #d94040;
+    --ok-bg: rgba(23, 168, 122, .09);
+    --warn-bg: rgba(232, 160, 32, .10);
+    --dan-bg: rgba(217, 64, 64, .09);
+    --sw: 248px;   --th: 60px;
+    --r: 10px;     --rsm: 6px;
+}

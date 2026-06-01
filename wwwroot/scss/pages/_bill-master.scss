@@ -1,0 +1,904 @@
+// ============================================================================
+// pages/_bill-master.scss
+// Styles for the master bill list view + mobile detail overlay.
+// Migrated from: IndexCLAUDE.css
+//
+// Sections:
+//  1. Tab navigation
+//  2. Cards and surfaces
+//  3. Master table (#tblBillMaster)
+//  4. Child row expansion
+//  5. Bill info cards (summary strip)
+//  6. Details table (#tblBillDetails)
+//  7. Action bar, forms, panels
+//  8. Responsive — DataTables + table stacking
+//  9. Mobile detail overlay (#mobileDetailOverlay)
+// ============================================================================
+
+// ── 1. Tab navigation ─────────────────────────────────────────────────────────
+.nav-tabs {
+  .nav-link {
+    border: none;
+    border-bottom: 3px solid transparent;
+    color: $color-text-muted;
+    font-weight: 600;
+    padding: 10px 18px;
+    transition: all 0.2s ease;
+
+    &:hover {
+      color: $color-info;
+      border-bottom-color: #90c0ff;
+    }
+
+    &.active {
+      color: $color-info;
+      border-bottom: 3px solid $color-info;
+      background: transparent;
+    }
+  }
+}
+
+.tab-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: $color-info;
+  color: $color-surface;
+  border-radius: $radius-pill;
+  font-size: 11px;
+  font-weight: 700;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 5px;
+  margin-left: 6px;
+}
+
+// ── 2. Cards and surfaces ─────────────────────────────────────────────────────
+.tis-card {
+  @include card-surface;
+  padding: 20px;
+}
+
+// ── 3. Master table ───────────────────────────────────────────────────────────
+#tblBillMaster {
+  thead th {
+    background: #e8edf7;
+    color: $color-text-primary;
+    font-size: 13px;
+  }
+
+  tbody {
+    tr.master-row {
+      cursor: pointer;
+      transition: background 0.15s;
+
+      &:hover { background: #f0f5ff; }
+    }
+
+    tr.table-active {
+      background: $color-info-light !important;
+    }
+  }
+}
+
+// ── 4. Child row expansion ────────────────────────────────────────────────────
+.bill-child-row td {
+  padding: 0 !important;
+  border-top: none !important;
+}
+
+.child-container {
+  background: $color-surface-soft;
+  border-left: 4px solid $color-info;
+  border-radius: 0 0 $radius-lg $radius-lg;
+  animation: slideDown 0.25s ease;
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+// ── 5. Bill info cards (summary strip) ───────────────────────────────────────
+.info-cards-wrapper {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: stretch;
+}
+
+.info-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  background: $color-surface;
+  border: 1px solid $color-border;
+  border-radius: $radius-lg;
+  padding: 12px 16px;
+  flex: 1 1 220px;
+
+  &--highlight {
+    background: #fff8e1;
+    border-color: $color-warning;
+    flex: 0 0 auto;
+    min-width: 200px;
+    align-items: center;
+    justify-content: center;
+  }
+}
+
+.info-item {
+  display: flex;
+  flex-direction: column;
+  min-width: 90px;
+}
+
+.info-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: $color-text-muted;
+  font-weight: 600;
+}
+
+.info-value {
+  font-size: 15px;
+  font-weight: 700;
+  color: $color-text-primary;
+  margin-top: 2px;
+}
+
+.net-total-value {
+  font-size: 22px;
+  color: #e53935;
+  font-family: $font-mono;
+}
+
+// ── 6. Details table ──────────────────────────────────────────────────────────
+#tblBillDetails thead th {
+  background: $brand-navy;
+  color: $color-surface;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.unidentified-row {
+  background: $color-warning-light !important;
+}
+
+// ── 7. Action bar, forms, panels ──────────────────────────────────────────────
+.radio-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+}
+
+.radio-lbl {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+  padding: 3px 10px 3px 6px;
+  border: 1.5px solid $color-border;
+  border-radius: $radius-pill;
+  background: $color-surface-soft;
+  color: $color-text-muted;
+  user-select: none;
+  transition: border-color 0.15s, background 0.15s, color 0.15s;
+
+  input[type='radio'] {
+    accent-color: $brand-blue;
+    width: 13px;
+    height: 13px;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+
+  // Highlight the whole pill when its radio button is selected
+  &:has(input[type='radio']:checked) {
+    border-color: $brand-blue;
+    background: rgba(37, 99, 235, 0.08);
+    color: $brand-blue;
+  }
+
+  // Locked / read-only rows — fade and block interaction
+  &:has(input[type='radio']:disabled) {
+    opacity: 0.55;
+    cursor: default;
+    pointer-events: none;
+  }
+}
+
+.comment-input {
+  font-size: 12px;
+  border-radius: $radius-sm;
+}
+
+.action-bar {
+  background: $color-surface !important;   // override Bootstrap's .bg-light
+  border-color: $color-border !important;
+  border-radius: $radius-lg;
+
+  // Save — electric blue gradient
+  #btnSave {
+    background: linear-gradient(135deg, $brand-blue 0%, #1d4ed8 100%);
+    border-color: transparent;
+    box-shadow: 0 2px 8px rgba(37, 99, 235, 0.3);
+    font-weight: 700;
+    transition: box-shadow 0.2s, transform 0.15s;
+
+    &:hover  { box-shadow: 0 4px 14px rgba(37, 99, 235, 0.45); transform: translateY(-1px); }
+    &:active { box-shadow: none; transform: translateY(0); }
+  }
+
+  // Process — success green gradient
+  #btnProcess {
+    background: linear-gradient(135deg, $color-success 0%, #15803d 100%);
+    border-color: transparent;
+    box-shadow: 0 2px 8px rgba(22, 163, 74, 0.3);
+    font-weight: 700;
+    transition: box-shadow 0.2s, transform 0.15s;
+
+    &:hover  { box-shadow: 0 4px 14px rgba(22, 163, 74, 0.45); transform: translateY(-1px); }
+    &:active { box-shadow: none; transform: translateY(0); }
+  }
+}
+
+.dt-section thead th {
+  background: $brand-navy;
+  color: $color-surface;
+}
+
+.appr-comment-input {
+  font-size: 12px;
+  min-width: 130px;
+}
+
+.delegate-panel {
+  background: $color-surface;
+  border: 1px solid $color-border;
+  border-radius: $radius-lg;
+  padding: 16px;
+  margin-bottom: 16px;
+}
+
+.roaming-form {
+  background: $color-surface-soft;
+  border-radius: $radius-lg;
+  padding: 16px;
+  border: 1px solid $color-border;
+  margin-bottom: 16px;
+}
+
+#rptAnalyzeBill {
+  display: none; // shown only in @media print (see base/_print.scss)
+}
+
+// ── 8. Responsive — DataTables + table stacking ───────────────────────────────
+@include respond-below(md) {
+  .info-group        { flex: 1 1 100%; }
+
+  .action-bar {
+    flex-direction: column;
+    align-items: stretch !important;
+  }
+
+  .net-total-value   { font-size: 18px; }
+
+  .radio-group {
+    justify-content: flex-end;
+    width: 100%;
+  }
+
+  .appr-comment-input,
+  .comment-input {
+    width: 100%;
+    max-width: 200px;
+    text-align: right;
+  }
+
+  // Scrollable nav pills on small screens
+  .nav-pills {
+    justify-content: flex-start !important;
+    overflow-x: auto;
+    padding-bottom: 8px;
+    -webkit-overflow-scrolling: touch;
+    scroll-snap-type: x mandatory;
+
+    &::-webkit-scrollbar        { height: 6px; }
+    &::-webkit-scrollbar-thumb  { background: #cbd5e1; border-radius: 4px; }
+  }
+
+  .nav-item {
+    scroll-snap-align: start;
+  }
+
+  // DataTables wrapper stacking
+  div.dataTables_wrapper {
+    div.row {
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+
+    div.dataTables_filter {
+      text-align: left;
+
+      input {
+        width: 100%;
+        margin-left: 0;
+        margin-top: 5px;
+      }
+    }
+
+    div.dataTables_paginate ul.pagination {
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+  }
+
+  .modal-body .table tbody tr td::before {
+    font-size: 11px;
+  }
+
+  // Generic card-style table rows (applied to all .table on mobile,
+  // except #tblBillMaster which gets its own override below)
+  table.table,
+  .table thead,
+  .table tbody,
+  .table th,
+  .table td,
+  .table tr {
+    display: block;
+    width: 100%;
+  }
+
+  .table {
+    thead tr { display: none; }
+
+    tbody tr {
+      margin-bottom: 16px;
+      background: white;
+      border: 1px solid $color-border;
+      border-radius: $radius-xl;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+
+      &.bill-child-row {
+        background: transparent !important;
+        border: none !important;
+        box-shadow: none !important;
+        padding: 0 !important;
+        margin-bottom: 0 !important;
+      }
+
+      td {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        text-align: right;
+        border: none !important;
+        padding: 6px 4px !important;
+        font-size: 13px;
+        min-height: 32px;
+        border-bottom: 1px dashed #f0f0f0 !important;
+
+        &:last-child  { border-bottom: none !important; }
+
+        // data-label attribute driven — add data-label="Column Name" in your Razor view <td>
+        &::before {
+          content: attr(data-label);
+          font-weight: 600;
+          color: $color-text-muted;
+          text-align: left;
+          margin-right: 15px;
+          flex-shrink: 0;
+        }
+      }
+    }
+  }
+
+  .expand-toggle {
+    justify-content: center !important;
+    background: $color-surface-soft;
+    border-radius: $radius-md;
+    padding: 10px !important;
+    margin-bottom: 8px;
+    border-bottom: none !important;
+
+    &::before { display: none !important; }
+  }
+
+  .table-scroll { overflow: hidden; }
+
+  // tblBillMaster resets to proper table display on mobile
+  // (overrides the generic stacking rules above)
+  #tblBillMaster {
+    display: table;
+    width: 100%;
+
+    thead { display: table-header-group; }
+    tbody { display: table-row-group; }
+
+    tr {
+      display: table-row;
+      margin-bottom: 0;
+      background: transparent;
+      border: none;
+      box-shadow: none;
+      padding: 0;
+    }
+
+    td, th {
+      display: table-cell;
+      text-align: left;
+      padding: 8px 6px !important;
+      font-size: 11px;
+      border-bottom: 1px solid $color-border !important;
+      min-height: auto;
+
+      &::before { display: none !important; }
+    }
+
+    // Hide non-essential columns on small screens
+    th:nth-child(1), td:nth-child(1),
+    th:nth-child(4), td:nth-child(4),
+    th:nth-child(7), td:nth-child(7),
+    th:nth-child(8), td:nth-child(8),
+    th:nth-child(9), td:nth-child(9) {
+      display: none !important;
+    }
+
+    th:nth-child(2), td:nth-child(2),
+    th:nth-child(3), td:nth-child(3),
+    th:nth-child(5), td:nth-child(5),
+    th:nth-child(6), td:nth-child(6) {
+      width: 25% !important;
+    }
+  }
+}
+
+@media (max-width: 950px) {
+  .table-scroll { overflow: scroll; }
+}
+
+// ── 9. Mobile detail overlay (#mobileDetailOverlay) ──────────────────────────
+// Full-screen slide-in panel triggered when a master row is tapped on mobile.
+//
+// Structure:
+//   #mobileDetailOverlay
+//     └─ .mdo__header          fixed top — back btn, title, live-tag
+//     └─ .mdo__summary         fixed below header — 4 summary pills
+//     └─ .mdo__carousel-wrap   scrollable — swipeable row cards
+//     └─ .mdo__actions         fixed bottom — save / print / process
+
+#mobileDetailOverlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 1060;
+  background: #f0f4fa;
+  flex-direction: column;
+  overflow: hidden;
+  transform: translateX(100%);
+  transition: transform 0.32s cubic-bezier(0.4, 0, 0.2, 1);
+
+  &.mdo--open {
+    display: flex;
+    transform: translateX(0);
+  }
+}
+
+// Header bar
+.mdo__header {
+  flex-shrink: 0;
+  @include flex-center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  background: $color-surface;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  z-index: 10;
+  gap: 10px;
+}
+
+.mdo__back-btn {
+  @include flex-center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: none;
+  background: #e8edf7;
+  color: $color-text-primary;
+  font-size: 14px;
+  flex-shrink: 0;
+  cursor: pointer;
+  transition: background 0.15s;
+
+  &:active { background: #c8d4ee; }
+}
+
+.mdo__title {
+  font-size: 15px;
+  font-weight: 700;
+  color: $color-text-primary;
+  flex: 1;
+  @include truncate;
+}
+
+.mdo__live-tag {
+  @include flex-center;
+  gap: 6px;
+  flex-shrink: 0;
+
+  .form-check-label {
+    font-size: 11px;
+    color: $color-text-muted;
+    white-space: nowrap;
+  }
+}
+
+// Summary strip
+.mdo__summary {
+  flex-shrink: 0;
+  display: flex;
+  gap: 8px;
+  padding: 10px 14px;
+  background: linear-gradient(135deg, $brand-navy 0%, $brand-navy-mid 100%);
+  scrollbar-width: none;
+
+  @include custom-scrollbar(horizontal);
+
+  &::-webkit-scrollbar { display: none; }
+}
+
+.mdo__pill {
+  @include flex-center(column);
+  flex: 1 1 70px;
+  min-width: 70px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: $radius-lg;
+  padding: 8px 10px;
+  gap: 2px;
+
+  &--net {
+    background: rgba(229, 57, 53, 0.2);
+    border-color: rgba(229, 57, 53, 0.45);
+    min-width: 90px;
+  }
+}
+
+.mdo__pill-label {
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: rgba(255, 255, 255, 0.65);
+  white-space: nowrap;
+}
+
+.mdo__pill-value {
+  font-size: 14px;
+  font-weight: 800;
+  color: $color-surface;
+  font-family: $font-mono;
+  white-space: nowrap;
+
+  .mdo__pill--net & {
+    color: #ff8a80;
+    font-size: 15px;
+  }
+}
+
+// Carousel wrapper
+.mdo__carousel-wrap {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  padding: 0 14px 8px;
+  position: relative;
+}
+
+// Swipe hint (auto-fades after 3s)
+.mdo__swipe-hint {
+  @include flex-center;
+  gap: 6px;
+  font-size: 11px;
+  color: $color-text-hint;
+  animation: fadeHint 3s ease 0.5s forwards;
+  opacity: 1;
+
+  i { font-size: 13px; }
+}
+
+@keyframes fadeHint {
+  0%, 60% { opacity: 1; }
+  100%     { opacity: 0; pointer-events: none; }
+}
+
+// Carousel track
+.mdo__carousel-track {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  padding-bottom: 4px;
+  cursor: grab;
+
+  &::-webkit-scrollbar { display: none; }
+
+  &.is-dragging {
+    cursor: grabbing;
+    scroll-snap-type: none;
+  }
+}
+
+// Individual swipe card
+.mdo__card {
+  flex: 0 0 calc(100vw - 44px);
+  max-width: 360px;
+  scroll-snap-align: start;
+  background: $color-surface;
+  border-radius: 14px;
+  box-shadow: $shadow-card;
+  overflow: hidden;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  user-select: none;
+
+  &:active {
+    transform: scale(0.98);
+    box-shadow: 0 1px 6px rgba(0, 0, 0, 0.07);
+  }
+}
+
+// Accent bar + badge — driven by SCSS maps (one loop replaces 36 lines)
+.mdo__card-accent {
+  height: 4px;
+  border-radius: 14px 14px 0 0;
+}
+
+$call-type-colors: (
+  'unidentified': $color-warning,
+  'business':     $color-info,
+  'personal':     $color-purple,
+  'allowance':    $color-success,
+  'ext':          $color-orange,
+  'faulty':       $color-danger,
+);
+
+$badge-styles: (
+  'unidentified': ($color-warning-light, $color-warning-dark),
+  'business':     ($color-info-light,    $color-info-dark),
+  'personal':     ($color-purple-light,  $color-purple-dark),
+  'allowance':    ($color-success-light, $color-success-dark),
+  'ext':          ($color-orange-light,  $color-orange-dark),
+  'faulty':       ($color-danger-light,  $color-danger-dark),
+);
+
+@each $type, $color in $call-type-colors {
+  .mdo__card--#{$type} .mdo__card-accent { background: $color; }
+}
+
+@each $type, $colors in $badge-styles {
+  .mdo__card--#{$type} .mdo__card-badge {
+    background: nth($colors, 1);
+    color:      nth($colors, 2);
+  }
+}
+
+.mdo__card-body {
+  padding: 14px 16px 16px;
+}
+
+.mdo__card-badge {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-radius: 20px;
+  padding: 3px 10px;
+  margin-bottom: 10px;
+}
+
+// Card field rows
+.mdo__card-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 5px 0;
+  border-bottom: 1px dashed $color-border-light;
+  gap: 8px;
+
+  &:last-of-type { border-bottom: none; padding-bottom: 0; }
+}
+
+.mdo__card-row-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: $color-text-hint;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  flex-shrink: 0;
+}
+
+.mdo__card-row-value {
+  font-size: 13px;
+  font-weight: 600;
+  color: $color-text-primary;
+  text-align: right;
+  word-break: break-word;
+}
+
+.mdo__card-amount {
+  font-size: 18px !important;
+  font-weight: 800 !important;
+  color: $color-info !important;
+  font-family: $font-mono;
+}
+
+// Card radio type selector
+.mdo__card-radio-wrap {
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px solid $color-border-light;
+}
+
+.mdo__card-radio-label {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: $color-text-hint;
+  margin-bottom: 6px;
+  display: block;
+}
+
+.mdo__radio-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.mdo__radio-btn {
+  @include flex-center;
+  gap: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 20px;
+  border: 1.5px solid $color-border;
+  background: $color-surface-soft;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+  color: #4a5568;
+
+  input[type='radio'] { display: none; }
+
+  &.is-active {
+    border-color: $color-info;
+    background: $color-info-light;
+    color: $color-info-dark;
+
+    &.type-personal  { border-color: $color-purple;  background: $color-purple-light;  color: $color-purple-dark;  }
+    &.type-allowance { border-color: $color-success;  background: $color-success-light; color: $color-success-dark; }
+    &.type-ext       { border-color: $color-orange;   background: $color-orange-light;  color: $color-orange-dark;  }
+    &.type-faulty    { border-color: $color-danger;   background: $color-danger-light;  color: $color-danger-dark;  }
+  }
+}
+
+// Card comment input
+.mdo__card-comment {
+  margin-top: 10px;
+
+  input {
+    width: 100%;
+    border: 1.5px solid $color-border;
+    border-radius: $radius-md;
+    padding: 7px 10px;
+    font-size: 12px;
+    color: $color-text-primary;
+    background: $color-surface-soft;
+    transition: border-color 0.15s;
+
+    &:focus {
+      outline: none;
+      border-color: $color-info;
+      background: $color-surface;
+    }
+  }
+}
+
+// Dot pagination
+.mdo__dots {
+  @include flex-center;
+  gap: 5px;
+  padding: 10px 0 4px;
+  flex-wrap: wrap;
+}
+
+.mdo__dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #c8d4ee;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+
+  &.is-active {
+    background: $color-info;
+    width: 18px;
+    border-radius: 3px;
+  }
+}
+
+.mdo__counter {
+  font-size: 11px;
+  font-weight: 700;
+  color: $color-text-hint;
+  text-align: center;
+  padding: 0 0 8px;
+}
+
+// Fixed bottom action bar
+.mdo__actions {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 10px 14px;
+  background: $color-surface;
+  box-shadow: 0 -3px 12px rgba(0, 0, 0, 0.1);
+  z-index: 10;
+}
+
+.mdo__actions-selects {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: 1;
+  min-width: 0;
+
+  select {
+    font-size: 11px;
+    padding: 5px 6px;
+    border-radius: 7px;
+    border: 1.5px solid $color-border;
+    background: $color-surface-soft;
+    color: $color-text-primary;
+    flex: 1;
+    min-width: 0;
+  }
+}
+
+.mdo__actions-btns {
+  @include flex-center;
+  gap: 6px;
+  flex-shrink: 0;
+
+  .btn {
+    font-size: 12px;
+    padding: 6px 12px;
+    border-radius: $radius-md;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+}
+
+// Hide overlay on desktop
+@include respond-to(md) {
+  #mobileDetailOverlay { display: none !important; }
+}

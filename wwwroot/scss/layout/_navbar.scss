@@ -1,0 +1,199 @@
+// ============================================================================
+// layout/_navbar.scss
+// Shared header / navbar for Views/Shared/_Layout.cshtml.
+//
+// Bootstrap handles (via HTML utility classes — no custom CSS needed):
+//   d-flex, align-items-center, justify-content-between, gap-*, flex-grow-1,
+//   d-none d-lg-flex, rounded-4, shadow, btn-outline-light, fw-*, text-white,
+//   px-*, py-*, ms-auto, offcanvas, btn-close, border-bottom.
+//
+// This file only adds what Bootstrap cannot: the diagonal clip-path logo
+// shape, the animated admin-button reveal, and brand-specific colours.
+// ============================================================================
+
+// ── Header shell ──────────────────────────────────────────────────────────────
+// Layout HTML applies: rounded-4 shadow mx-2 mx-md-3 mt-2 mb-2
+.tis-header {
+  background-color: $brand-primary;
+  // min-height keeps header tall enough on 250px screens
+  min-height: 56px;
+}
+
+// ── Logo panel (diagonal white clip-path) ─────────────────────────────────────
+// The clip creates the signature angled right edge on the white logo block.
+// No flex / spacing utilities here — all in the HTML.
+.tis-logo {
+  background: $color-surface;
+  padding: 0.6rem 3.5rem 0.6rem 1rem;
+  clip-path: polygon(0 0, 100% 0, calc(100% - 36px) 100%, 0 100%);
+  border-radius: $radius-xl 0 0 $radius-xl;
+  flex-shrink: 0;
+  line-height: 0;       // removes inline gap below SVG
+
+  a { display: block; line-height: 0; }
+}
+
+// ── Center page-indicator pill (desktop) ─────────────────────────────────────
+// Shown via d-none d-lg-flex in HTML; hidden below lg breakpoint.
+.tis-page-indicator {
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: $radius-pill;
+  padding: 0.3rem 1.25rem;
+  color: rgba(255, 255, 255, 0.88);
+  font-size: 0.78rem;
+  letter-spacing: 0.03em;
+  max-width: 300px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+// ── Admin button (animated background-reveal on hover) ────────────────────────
+// The ::before pseudo-element slides in from left on hover, revealing white bg.
+.admin-button {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.4rem 1.1rem;
+  font-size: 0.83rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  border-radius: $radius-md;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.14);
+  color: $color-surface;
+  text-decoration: none;
+  border: 1.5px solid rgba(255, 255, 255, 0.32);
+  cursor: pointer;
+  transition: border-color 0.3s, color 0.3s;
+
+  span,
+  i {
+    position: relative;
+    z-index: 1;
+    transition: color 0.3s;
+  }
+
+  // Sliding white reveal layer
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    width: 120%;
+    left: -10%;
+    background: $color-surface;
+    transform: translateX(-110%);
+    transition: transform 0.4s cubic-bezier(0.3, 1, 0.8, 1);
+    z-index: 0;
+  }
+
+  &:hover {
+    border-color: transparent;
+    color: $brand-primary;
+
+    span,
+    i { color: $brand-primary; }
+
+    &::before { transform: translateX(0); }
+  }
+}
+
+// ── Mobile offcanvas header ───────────────────────────────────────────────────
+.tis-offcanvas-header {
+  background: linear-gradient(135deg, $brand-primary 0%, $brand-navy-mid 100%);
+  padding: 1rem 1.25rem;
+}
+
+// ── Mobile nav link rows ──────────────────────────────────────────────────────
+.tis-nav-link {
+  color: $color-text-primary;
+  transition: background 0.15s;
+
+  &:hover { background: $color-surface-alt; }
+}
+
+// ── In-header tab navigation ──────────────────────────────────────────────────
+// Rendered inside the dark navy header via @section HeaderNav.
+// Bootstrap utilities on the <ul> handle overflow-x-auto + flex-nowrap.
+// This block only adds the brand-colour override and scrollbar suppression.
+.tis-header-tabs {
+  list-style: none;
+  padding:    0;
+  margin:     0;
+  max-width:  100%;
+  scrollbar-width: none;       // Firefox
+  -ms-overflow-style: none;    // Legacy Edge
+  -webkit-overflow-scrolling: touch;
+
+  &::-webkit-scrollbar { display: none; }  // Chrome / Safari
+
+  .nav-link {
+    color:      rgba(255, 255, 255, 0.78);
+    background: rgba(255, 255, 255, 0.1);
+    border:     1px solid rgba(255, 255, 255, 0.16);
+    border-radius: $radius-pill;
+    font-size:  0.76rem;
+    font-weight: 600;
+    padding:    0.28rem 0.8rem;
+    white-space: nowrap;
+    transition: background 0.18s, color 0.18s, border-color 0.18s;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.2);
+      color:      rgba(255, 255, 255, 0.95);
+      border-color: rgba(255, 255, 255, 0.28);
+    }
+
+    // Active pill: white background, navy text — high contrast on dark header
+    &.active {
+      background:  $color-surface;
+      color:       $brand-navy;
+      border-color: transparent;
+      font-weight: 700;
+
+      .badge {
+        background-color: $brand-blue !important;
+        color: $color-surface;
+      }
+    }
+
+    // Badge inside inactive pill: subtle translucent white
+    .badge {
+      background-color: rgba(255, 255, 255, 0.22) !important;
+      color:    rgba(255, 255, 255, 0.9);
+      font-size: 0.62rem;
+      min-width: 1.1rem;
+    }
+  }
+}
+
+// At very small widths, tighten tab pill padding so 4 icons fit in 250px
+@media (max-width: 400px) {
+  .tis-header-tabs .nav-link {
+    padding: 0.25rem 0.55rem;
+    font-size: 0.7rem;
+  }
+}
+
+// ── Responsive ───────────────────────────────────────────────────────────────
+
+// Tighten logo clip on small phones (≤575px)
+@media (max-width: 575px) {
+  .tis-logo {
+    padding-right: 2.5rem;
+  }
+}
+
+// Ultra-narrow (250px – 400px): minimal logo padding
+@media (max-width: 400px) {
+  .tis-logo {
+    padding: 0.5rem 2rem 0.5rem 0.65rem;
+    clip-path: polygon(0 0, 100% 0, calc(100% - 26px) 100%, 0 100%);
+  }
+
+  .tis-header {
+    min-height: 50px;
+  }
+}

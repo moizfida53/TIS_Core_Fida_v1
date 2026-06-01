@@ -1,0 +1,348 @@
+// =============================================================================
+// _manage-employee.scss  —  Manage Employee admin page
+// =============================================================================
+// Also defines .tel-picker shared styles (compiles into site.css globally so
+// both ManageEmployee and AddTelephone can use the pattern without duplication).
+// =============================================================================
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Shared searchable picker  (.tel-picker)
+// ─────────────────────────────────────────────────────────────────────────────
+.tel-picker {
+    position: relative;
+
+    .tel-picker-btn {
+        text-align: left;
+        cursor: pointer;
+        position: relative;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+
+        &.is-placeholder { color: var(--tx3, #64748b); }
+
+        // CSS-triangle caret (replaces Bootstrap's default ::after on .form-select)
+        &::after {
+            content: '';
+            position: absolute;
+            right: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 0;
+            height: 0;
+            border-left: 5px solid transparent;
+            border-right: 5px solid transparent;
+            border-top: 6px solid var(--tx3, #64748b);
+        }
+    }
+
+    .tel-picker-menu {
+        min-width: 260px;
+        max-width: 320px;
+        width: max-content;
+        padding: 6px;
+        border: 1px solid var(--bd, #e5e7eb);
+        border-radius: 10px;
+        background: #fff;
+        box-shadow: 0 14px 36px rgba(15, 23, 42, .18), 0 2px 6px rgba(15, 23, 42, .08);
+    }
+
+    .tel-picker-search-wrap {
+        position: sticky;
+        top: -6px;
+        background: #fff;
+        padding: 6px 4px 8px;
+        margin: -6px -6px 4px;
+        border-bottom: 1px solid var(--bd, #e5e7eb);
+        z-index: 1;
+    }
+
+    .tel-picker-search {
+        font-size: 13px;
+        padding: 8px 12px 8px 32px;
+        border: 1px solid #e2e8f0;
+        border-radius: 7px;
+        width: 100%;
+        /* stylelint-disable-next-line function-url-quotes */
+        background: #f8fafc url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2'><circle cx='11' cy='11' r='8'/><path d='m21 21-4.35-4.35'/></svg>") no-repeat 10px center;
+
+        &:focus {
+            outline: none;
+            border-color: var(--teal, #2ab3bf);
+            background-color: #fff;
+            box-shadow: 0 0 0 3px rgba(42, 179, 191, .15);
+        }
+    }
+
+    .tel-picker-list {
+        max-height: 240px;
+        overflow-y: auto;
+        padding-top: 4px;
+
+        &::-webkit-scrollbar       { width: 6px; }
+        &::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+    }
+
+    .tel-picker-item {
+        padding: 8px 10px;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 13px;
+        color: var(--tx, #0f172a);
+        line-height: 1.35;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        transition: background .12s;
+
+        &:hover    { background: rgba(42, 179, 191, .10); }
+        &.selected { background: rgba(42, 179, 191, .18); font-weight: 600; color: var(--teal-dk, #1e8f99); }
+    }
+
+    .tel-picker-empty {
+        padding: 16px 10px;
+        text-align: center;
+        font-size: 12.5px;
+        color: var(--tx3, #64748b);
+        font-style: italic;
+    }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Page wrapper
+// ─────────────────────────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────────────────────────────────────
+// Shared modal chrome  (.tel-modal)
+// Mirrors AddTelephone inline styles so ManageEmployee can use the same markup.
+// ─────────────────────────────────────────────────────────────────────────────
+.tel-modal {
+    .modal-content {
+        border: 0;
+        border-radius: 14px;
+        overflow: hidden;
+        box-shadow: 0 25px 70px rgba(15, 23, 42, .22);
+    }
+    .modal-footer {
+        padding: 16px 24px;
+        background: #f8fafc;
+        border-top: 1px solid var(--bd, #e5e7eb);
+        .btn { font-size: 14px; padding: 8px 20px; }
+    }
+    .btn-close { filter: invert(1) grayscale(1) brightness(2); opacity: .9; margin: 0; }
+    .modal-body { padding: 24px 28px; }
+    .tel-lbl {
+        font-size: 13.5px; font-weight: 600; color: var(--tx2, #334155);
+        margin-bottom: 8px; letter-spacing: .2px; display: block;
+        .fa { color: var(--teal-dk, #1e8f99); margin-right: 4px; }
+    }
+}
+
+.tel-modal-hdr {
+    background: var(--teal, #2ab3bf);
+    color: #fff; border: 0;
+    
+    display: flex; align-items: center; gap: 16px;
+}
+.tel-modal-icon {
+    width: 46px; height: 46px; border-radius: 12px;
+    background: rgba(255,255,255,.18);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px; flex-shrink: 0;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.22);
+}
+.tel-modal-title { font-size: 19px; font-weight: 700; letter-spacing: .3px; line-height: 1.2; }
+
+.tel-input {
+    font-size: 15px; padding: 10px 14px; height: auto;
+    border: 1.5px solid #e2e8f0; border-radius: 8px; background: #fff;
+    transition: border-color .15s, box-shadow .15s;
+    &:focus {
+        outline: none;
+        border-color: var(--teal, #2ab3bf);
+        box-shadow: 0 0 0 3px rgba(42, 179, 191, .18);
+    }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Shared toolbar  (.tel-toolbar / .tel-search / .tel-edit-btn / .tel-grid-wrap)
+// ─────────────────────────────────────────────────────────────────────────────
+.tel-toolbar {
+    display: flex; justify-content: space-between; align-items: center;
+    gap: 10px; margin-bottom: 12px; flex-wrap: wrap;
+}
+
+.tel-search {
+    display: flex; align-items: center; gap: 7px;
+    background: #f8fafc; border: 1px solid #e5e7eb;
+    border-radius: 7px; padding: 6px 12px; min-width: 240px;
+    transition: all .15s;
+    &:focus-within {
+        border-color: var(--teal, #2ab3bf);
+        background: #fff;
+        box-shadow: 0 0 0 3px rgba(42, 179, 191, .15);
+    }
+    svg   { width: 14px; height: 14px; opacity: .55; flex-shrink: 0; }
+    input {
+        border: 0; background: transparent; outline: none;
+        font-size: 12.5px; color: var(--tx, #0f172a); width: 100%; padding: 0;
+        &::placeholder { color: var(--tx3, #64748b); }
+    }
+}
+
+.tel-edit-btn {
+    width: 30px; height: 30px;
+    border-radius: 7px; border: 1px solid var(--bd, #e5e7eb);
+    background: #fff; color: var(--teal-dk, #1e8f99);
+    display: inline-flex; align-items: center; justify-content: center;
+    cursor: pointer; transition: all .15s;
+    &:hover {
+        background: var(--teal, #2ab3bf); color: #fff;
+        border-color: var(--teal, #2ab3bf);
+        transform: translateY(-1px);
+        box-shadow: 0 3px 8px rgba(42,179,191,.25);
+    }
+}
+
+.tel-grid-wrap {
+    background: #fff; border: 1px solid var(--bd, #e5e7eb);
+    border-radius: 10px; padding: 12px;
+    table.dataTable thead th {
+        background: #e8edf7; color: #1a3a6e; font-size: 13px; font-weight: 600;
+    }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Toolbar action buttons
+// ─────────────────────────────────────────────────────────────────────────────
+.btn-add-emp {
+    background: var(--teal, #2ab3bf); border: 0; color: #fff;
+    font-size: 13px; font-weight: 600;
+    &:hover { background: var(--teal-dk, #1e8f99); color: #fff; }
+}
+
+// Sync AD — outlined teal
+.btn-sync-ad {
+    background: transparent;
+    border: 1.5px solid var(--teal, #2ab3bf);
+    color: var(--teal-dk, #1e8f99);
+    font-size: 13px; font-weight: 600; border-radius: 6px;
+    &:hover { background: var(--teal, #2ab3bf); color: #fff; border-color: var(--teal, #2ab3bf); }
+}
+
+// Modal save / add button  (teal-filled)
+.btn-emp-save {
+    background: var(--teal, #2ab3bf); border: 0; color: #fff; font-weight: 600;
+    &:hover  { background: var(--teal-dk, #1e8f99); color: #fff; }
+    &:active { background: var(--teal-dk, #1e8f99); }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Page wrapper
+// ─────────────────────────────────────────────────────────────────────────────
+#view-manage-employee { padding: 4px 0 16px; }
+
+// .emp-form-card removed — form now lives inside #employeeModal
+
+.emp-lbl {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--tx2, #334155);
+    margin-bottom: 6px;
+    letter-spacing: .2px;
+
+    .fa { color: var(--teal-dk, #1e8f99); margin-right: 3px; }
+}
+
+.emp-input {
+    font-size: 14px;
+    padding: 9px 13px;
+    height: auto;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 8px;
+    background: #fff;
+    transition: border-color .15s, box-shadow .15s;
+
+    &:focus {
+        border-color: var(--teal, #2ab3bf);
+        box-shadow: 0 0 0 3px rgba(42, 179, 191, .18);
+        outline: none;
+    }
+}
+
+// Is-Active checkbox wrapper (vertically centred inside its column)
+.emp-active-wrap {
+    height: 40px;
+    display: flex;
+    align-items: center;
+}
+
+.emp-active-check {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+    accent-color: var(--teal, #2ab3bf);
+}
+
+// Small (+) button beside the Cost Center picker
+.emp-btn-add-cc {
+    background: var(--teal, #2ab3bf);
+    border: 0;
+    color: #fff;
+    width: 38px;
+    height: 38px;
+    min-width: 38px;
+    padding: 0;
+    border-radius: 8px;
+    flex-shrink: 0;
+    align-self: flex-end;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    &:hover { background: var(--teal-dk, #1e8f99); color: #fff; }
+}
+
+// .emp-grid-wrap / .emp-toolbar — now using shared .tel-grid-wrap / .tel-toolbar above
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Inactive employee rows  (soft red tint + strikethrough)
+// ─────────────────────────────────────────────────────────────────────────────
+#tblEmployees tbody tr.emp-inactive > td {
+    color: #9ca3af !important;
+    font-style: italic;
+    background: #fff8f8 !important;
+    text-decoration: line-through;
+    text-decoration-color: #fca5a5;
+}
+
+// Clicked / selected row highlight
+#tblEmployees tbody tr.emp-selected > td {
+    background: rgba(42, 179, 191, .10) !important;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Export to Excel button
+// ─────────────────────────────────────────────────────────────────────────────
+.emp-btn-export {
+    background: #1d6f42;
+    border: 0;
+    color: #fff;
+    padding: 8px 18px;
+    border-radius: 7px;
+    font-size: 13px;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+
+    &:hover { background: #165a36; color: #fff; }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Responsive
+// ─────────────────────────────────────────────────────────────────────────────
+@media (max-width: 576px) {
+    .tel-modal .modal-body { padding: 16px; }
+    .tel-modal-hdr { padding: 16px; }
+}

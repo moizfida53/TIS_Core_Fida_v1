@@ -1,0 +1,27 @@
+@*
+    _ContactModal.cshtml
+    Small dialog for saving a contact name from inside the bill-detail modal.
+    SaveContact() is defined in myJS.js / index-page.js.
+*@
+<div class="modal fade" id="contactModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header py-2">
+                <h6 class="modal-title fw-bold"><i class="fa fa-address-book me-2"></i>Save Contact</h6>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label class="form-label small fw-semibold mb-1">Enter Name</label>
+                    <input id="txtContactName" type="text" class="form-control form-control-sm" placeholder="Contact name…" />
+                </div>
+            </div>
+            <div class="modal-footer py-2">
+                <button type="button" class="btn btn-primary btn-sm" onclick="SaveContact()">
+                    <i class="fa fa-floppy-disk me-1"></i>Done
+                </button>
+                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>

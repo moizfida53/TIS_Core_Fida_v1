@@ -1,0 +1,72 @@
+// ============================================================================
+// abstracts/_mixins.scss
+// Reusable mixins — import this after _variables.scss in site.scss
+// ============================================================================
+
+// ── Responsive breakpoint helpers ─────────────────────────────────────────────
+// Usage: @include respond-to(md) { ... }
+// Mirrors Bootstrap's own breakpoint names for consistency.
+$breakpoints: (
+  xs:  0px,
+  sm:  576px,
+  md:  768px,
+  lg:  992px,
+  xl:  1200px,
+  xxl: 1400px
+);
+
+@mixin respond-to($bp) {
+  $val: map-get($breakpoints, $bp);
+  @media (min-width: $val) { @content; }
+}
+
+@mixin respond-below($bp) {
+  $val: map-get($breakpoints, $bp);
+  @media (max-width: ($val - 1)) { @content; }
+}
+
+@mixin respond-between($lower, $upper) {
+  $lo: map-get($breakpoints, $lower);
+  $hi: map-get($breakpoints, $upper);
+  @media (min-width: $lo) and (max-width: ($hi - 1)) { @content; }
+}
+
+// ── Surface card ──────────────────────────────────────────────────────────────
+// Usage: @include card-surface;
+@mixin card-surface($radius: $radius-xl, $shadow: $shadow-md) {
+  background: $color-surface;
+  border-radius: $radius;
+  box-shadow: $shadow;
+}
+
+// ── Scrollbar theming ─────────────────────────────────────────────────────────
+// Usage: @include custom-scrollbar(horizontal);
+@mixin custom-scrollbar($axis: vertical, $size: 6px) {
+  @if $axis == horizontal {
+    overflow-x: auto;
+    overflow-y: hidden;
+    &::-webkit-scrollbar        { height: $size; }
+  } @else {
+    overflow-y: auto;
+    overflow-x: hidden;
+    &::-webkit-scrollbar        { width: $size; }
+  }
+  -webkit-overflow-scrolling: touch;
+  &::-webkit-scrollbar-track   { background: rgba(255,255,255,.3); border-radius: 3px; }
+  &::-webkit-scrollbar-thumb   { background: rgba(0,0,0,.2);       border-radius: 3px; }
+}
+
+// ── Truncate text ─────────────────────────────────────────────────────────────
+@mixin truncate {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+// ── Flex center ───────────────────────────────────────────────────────────────
+@mixin flex-center($direction: row) {
+  display: flex;
+  flex-direction: $direction;
+  align-items: center;
+  justify-content: center;
+}

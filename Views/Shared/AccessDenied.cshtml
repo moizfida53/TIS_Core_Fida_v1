@@ -1,0 +1,137 @@
+﻿@{
+    Layout = null;
+    var returnUrl = Url.Content("~/");
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Access Denied</title>
+    <meta charset="utf-8" />
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: #f3f4f6;
+            color: #222;
+        }
+
+        .center-wrapper {
+            min-height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            box-sizing: border-box;
+        }
+
+        .card {
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 6px 18px rgba(20,20,40,0.08);
+            max-width: 720px;
+            width: 100%;
+            padding: 32px;
+            text-align: center;
+        }
+
+        .icon {
+            width: 72px;
+            height: 72px;
+            margin: 0 auto 18px auto;
+            display: block;
+        }
+
+        .title {
+            margin: 0 0 8px 0;
+            font-size: 20px;
+            line-height: 1.2;
+            font-weight: 600;
+            color: #111827;
+        }
+
+        .desc {
+            margin: 0 0 20px 0;
+            color: #6b7280;
+            font-size: 14px;
+        }
+
+        .actions {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 10px 16px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            border: 1px solid transparent;
+        }
+
+        .btn-primary {
+            background: #1f6feb;
+            color: #fff;
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: #374151;
+            border-color: #d1d5db;
+        }
+
+        @@media (max-width:420px) {
+            .card {
+                padding: 20px;
+            }
+
+            .title {
+                font-size: 18px;
+            }
+
+            .icon {
+                width: 56px;
+                height: 56px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="center-wrapper">
+        <main class="card" role="main" aria-labelledby="access-title">
+            <!-- simple inline SVG icon -->
+            <svg class="icon" viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false">
+                <circle cx="12" cy="12" r="10" fill="#fee2e2" />
+                <path d="M12 7v6" stroke="#b91c1c" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
+                <path d="M12 16h.01" stroke="#b91c1c" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+
+            <h1 id="access-title" class="title">Session expired or access denied.</h1>
+
+            <p class="desc">
+                Your session may have expired, or you don't have permission to view this page.
+                Please sign in again or contact your administrator if you believe this is an error.
+            </p>
+
+            <div class="actions" role="group" aria-label="Actions">
+                @*<a class="btn btn-primary" href="@returnUrl">Return to Home</a>
+                    <a href="javascript:;" class="btn btn-secondary" onclick="location.reload(true);">Retry</a>*@
+                @*<a class="btn btn-primary" onclick="window.close();">Ok</a>*@
+            </div>
+        </main>
+    </div>
+    <script>
+        function closeTab() {
+            window.open('', '_self');
+            window.close();
+        }
+    </script>
+</body>
+</html>

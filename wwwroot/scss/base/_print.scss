@@ -1,0 +1,42 @@
+// ============================================================================
+// base/_print.scss
+// All @media print rules for the project in one place.
+// Migrated from: billDetails.css, IndexCLAUDE.css
+// ============================================================================
+
+@media print {
+  // ── Bill info card ──────────────────────────────────────────────────────────
+  .bill-info-card {
+    background: $color-surface !important;
+    border: 1px solid #ddd;
+    box-shadow: none;
+  }
+
+  .bill-section {
+    background: $color-surface !important;
+    border: 1px solid $color-border-light;
+  }
+
+  .net-total {
+    color: #000 !important;
+  }
+
+  // ── Reveal print-only report containers ────────────────────────────────────
+  #rptAnalyzeBill {
+    display: block;
+  }
+
+  // ── Hide browser chrome ─────────────────────────────────────────────────────
+  .btn,
+  .form-select,
+  .form-check,
+  .navbar,
+  .mdo__actions {
+    display: none !important;
+  }
+
+  // ── Typography ──────────────────────────────────────────────────────────────
+  #billDetails h1 {
+    color: #000 !important;
+  }
+}

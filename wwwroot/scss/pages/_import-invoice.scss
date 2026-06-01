@@ -1,0 +1,355 @@
+// =============================================================================
+// _import-invoice.scss  —  Import Mobile Bills page
+// =============================================================================
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Page wrapper
+// ─────────────────────────────────────────────────────────────────────────────
+.imp-page { padding: 4px 0 16px; }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Tab strip  (same teal accent as AddTelephone)
+// ─────────────────────────────────────────────────────────────────────────────
+.imp-page .nav-tabs {
+    border-bottom: 2px solid var(--bd, #e5e7eb);
+    margin-bottom: 16px;
+
+    .nav-link {
+        border: 0;
+        border-bottom: 3px solid transparent;
+        color: var(--tx3, #64748b);
+        font-weight: 600;
+        padding: 10px 18px;
+        cursor: pointer;
+        background: transparent;
+
+        &.active {
+            color: var(--teal-dk, #1e8f99);
+            border-bottom-color: var(--teal, #2ab3bf);
+            background: transparent;
+        }
+    }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Form card  (collects filter/upload controls)
+// ─────────────────────────────────────────────────────────────────────────────
+.imp-form-card {
+    background: #fff;
+    border: 1px solid var(--bd, #e5e7eb);
+    border-radius: 10px;
+    padding: 20px 24px;
+    margin-bottom: 16px;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, .05);
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Stepped wizard  (Import tab — progressive Provider → File → Sheet → Process)
+// Colourful, theme-driven. Each step has its own accent colour.
+// ─────────────────────────────────────────────────────────────────────────────
+.imp-wizard {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    // accent colours per step (fallbacks mirror :root tokens)
+    --st1: var(--teal,    #2ab3bf);
+    --st2: #2563eb;                 // brand blue
+    --st3: var(--warn,    #e8a020);
+    --st4: var(--ok,      #17a87a);
+}
+
+.imp-step {
+    position: relative;
+    border: 1px solid var(--bd, #e0e6ed);
+    border-left: 4px solid var(--st, #2ab3bf);
+    border-radius: 10px;
+    padding: 14px 18px 16px;
+    background: linear-gradient(180deg, var(--st-glow, rgba(42,179,191,.06)) 0%, #fff 60%);
+    box-shadow: 0 1px 3px rgba(15, 23, 42, .05);
+
+    &--1 { --st: var(--st1); --st-glow: rgba(42, 179, 191, .08); }
+    &--2 { --st: var(--st2); --st-glow: rgba(37, 99, 235,  .07); }
+    &--3 { --st: var(--st3); --st-glow: rgba(232, 160, 32, .08); }
+    &--4 { --st: var(--st4); --st-glow: rgba(23, 168, 122, .08); }
+
+    // reveal animation for steps that fade in (#stepSheet / #stepResult)
+    &[id] { animation: impStepIn .28s ease both; }
+}
+
+@keyframes impStepIn {
+    from { opacity: 0; transform: translateY(-6px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+// Steps 2 & 3 share a row. While step 3 (#stepSheet) is hidden, step 2 fills
+// the whole width on its own (single flex item). When step 3 appears they split.
+.imp-step-row {
+    display: flex;
+    gap: 14px;
+    align-items: stretch;
+
+    > .imp-step {
+        flex: 1 1 0;
+        min-width: 0;
+    }
+}
+
+@media (max-width: 768px) {
+    .imp-step-row { flex-direction: column; }
+}
+
+.imp-step-head {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 12px;
+}
+
+.imp-step-num {
+    flex: 0 0 auto;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: 800;
+    color: #fff;
+    background: linear-gradient(135deg, var(--st), color-mix(in srgb, var(--st) 70%, #000 12%));
+    box-shadow: 0 2px 5px color-mix(in srgb, var(--st) 45%, transparent);
+}
+
+.imp-step-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--tx, #1a1f2e);
+    letter-spacing: .01em;
+}
+
+// Colourful select inputs — accent left border + themed focus glow
+.imp-sel.form-select {
+    border-radius: 8px;
+    border: 1.5px solid var(--bd, #e0e6ed);
+    border-left: 4px solid var(--sel-c, #2ab3bf);
+    font-weight: 600;
+    transition: border-color .15s, box-shadow .15s;
+
+    &:focus {
+        border-color: var(--sel-c, #2ab3bf);
+        box-shadow: 0 0 0 3px color-mix(in srgb, var(--sel-c, #2ab3bf) 22%, transparent);
+    }
+}
+.imp-sel--provider { --sel-c: var(--teal, #2ab3bf); }
+.imp-sel--year     { --sel-c: #6366f1; }   // indigo
+.imp-sel--month    { --sel-c: #2563eb; }   // blue
+.imp-sel--sheet    { --sel-c: var(--warn, #e8a020); }
+
+// Colourful file input
+.imp-file.form-control {
+    border-radius: 8px;
+    border: 1.5px solid var(--bd, #e0e6ed);
+    border-left: 4px solid #2563eb;
+
+    &::file-selector-button {
+        background: #2563eb;
+        color: #fff;
+        border: 0;
+        padding: 7px 14px;
+        margin: -1px 12px -1px -1px;
+        font-weight: 600;
+        cursor: pointer;
+    }
+    &:focus { box-shadow: 0 0 0 3px rgba(37, 99, 235, .2); }
+}
+
+.imp-file-name {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--teal-dk, #1e8f99);
+}
+
+// Colourful action buttons (gradients per role)
+.imp-btn {
+    border: 0;
+    color: #fff;
+    font-weight: 700;
+    font-size: 13.5px;
+    border-radius: 8px;
+    padding: 10px 18px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform .12s, box-shadow .15s, filter .15s;
+
+    &:hover  { transform: translateY(-1px); filter: brightness(1.05); color: #fff; }
+    &:active { transform: translateY(0); }
+
+    &--upload  { background: linear-gradient(135deg, #3b82f6, #2563eb); box-shadow: 0 3px 8px rgba(37, 99, 235, .32); }
+    &--submit  { background: linear-gradient(135deg, var(--teal, #2ab3bf), var(--teal-dk, #1e8f99)); box-shadow: 0 3px 8px rgba(42, 179, 191, .34); }
+    &--process { background: linear-gradient(135deg, #22c08a, var(--ok, #17a87a)); box-shadow: 0 3px 8px rgba(23, 168, 122, .32); }
+    &--save    { background: linear-gradient(135deg, #f6b54a, var(--warn, #e8a020)); box-shadow: 0 3px 8px rgba(232, 160, 32, .32); }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Total Amount display pill
+// ─────────────────────────────────────────────────────────────────────────────
+.imp-amount-display {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--teal-dk, #1e8f99);
+    background: #f0fafb;
+    border: 1.5px solid var(--teal, #2ab3bf);
+    border-radius: 8px;
+    padding: 9px 14px;
+    min-height: 40px;
+    display: flex;
+    align-items: center;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Field mapping table  (Excel Mapping tab)
+// ─────────────────────────────────────────────────────────────────────────────
+.imp-mapping-table {
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid var(--bd, #e5e7eb);
+
+    thead th {
+        background: #e8edf7;
+        color: #1a3a6e;
+        font-size: 13px;
+        font-weight: 600;
+        padding: 10px 14px;
+    }
+
+    tbody td {
+        padding: 10px 14px;
+        vertical-align: middle;
+        border-bottom: 1px solid var(--bd, #e5e7eb);
+
+        strong { color: var(--tx2, #334155); font-size: 13px; }
+    }
+
+    tbody tr:last-child td { border-bottom: none; }
+    tbody tr:hover td { background: #f8fafc; }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// DB connection settings area
+// ─────────────────────────────────────────────────────────────────────────────
+.imp-db-section {
+    background: var(--s2, #f0f3f6);
+    border: 1px solid var(--bd, #e5e7eb);
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin-top: 12px;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Error record rows in #tblImport (null SUB_NO / CALLDATE / AMOUNT)
+// ─────────────────────────────────────────────────────────────────────────────
+#tblImport tbody tr.imp-error > td {
+    background: #fff5f5 !important;
+}
+
+#tblImport tbody tr.imp-error > td.imp-cell-empty {
+    color: #b91c1c;
+    font-style: italic;
+
+    &::after {
+        content: ' ⚠';
+        font-style: normal;
+    }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Bill Details summary cards  (shown after ProcessBill success)
+// ─────────────────────────────────────────────────────────────────────────────
+.imp-summary-row {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-bottom: 4px;
+}
+
+.imp-summary-card {
+    flex: 1 1 190px;
+    background: #f8fafc;
+    border: 1px solid var(--bd, #e5e7eb);
+    border-radius: 10px;
+    padding: 16px;
+    text-align: center;
+
+    &--warn {
+        background: #fff8f0;
+        border-color: #fb923c;
+    }
+
+    .imp-summary-label {
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: .5px;
+        color: var(--tx3, #64748b);
+        margin-bottom: 8px;
+    }
+
+    .imp-summary-count {
+        font-size: 30px;
+        font-weight: 800;
+        color: #1a3a6e;
+        line-height: 1;
+    }
+
+    .imp-summary-amount {
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--tx2, #334155);
+        margin-top: 6px;
+    }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Export to Excel button
+// ─────────────────────────────────────────────────────────────────────────────
+.imp-btn-export {
+    background: #1d6f42;
+    border: 0;
+    color: #fff;
+    padding: 8px 18px;
+    border-radius: 7px;
+    font-size: 13px;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+
+    &:hover { background: #165a36; color: #fff; }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Connection status indicator
+// ─────────────────────────────────────────────────────────────────────────────
+.imp-conn-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 14px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+
+    &--ok  { background: #d1fae5; color: #065f46; }
+    &--err { background: #fee2e2; color: #991b1b; }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Responsive
+// ─────────────────────────────────────────────────────────────────────────────
+@media (max-width: 576px) {
+    .imp-form-card { padding: 14px 12px; }
+    .imp-summary-row { flex-direction: column; }
+}

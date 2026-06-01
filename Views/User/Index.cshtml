@@ -1,0 +1,225 @@
+@model TIS.Models.Users
+@{
+    ViewData["Title"] = "Bill Management";
+    Layout = "_Layout";
+    bool isDeptRole = ViewBag.RoleId?.ToString() == "6";
+}
+
+<!-- ════════════════════════════════════════════════
+     HIDDEN — myJS.js compatibility hooks
+     (tab-item IDs, admin buttons, hidden fields)
+═════════════════════════════════════════════════ -->
+<div aria-hidden="true" style="display:none" id="_jscompat">
+    <ul>
+        <li id="tab-identification-item"></li>
+        <li id="tab-approval-item"></li>
+        <li id="tab-history-item"></li>
+        @if (isDeptRole)
+        {
+            <li id="tab-department-item"></li>
+        }
+        <li id="DataRoamingTab"></li>
+    </ul>
+    <span id="lblPendingIdentificationCnt">0</span>
+    <span id="lblPendingIdentificationCount">0</span>
+    <span id="lblPendingApprovalCnt">0</span>
+    <span id="lblBillsHistoryCnt">0</span>
+    <span id="lblBillsDepartmentCnt">0</span>
+    <div id="adminName">@ViewBag.name</div>
+    <a href="/Admin" id="btnAdmin"></a>
+    <a href="/Admin" id="btnAdminMobile"></a>
+    <input type="hidden" id="selectedTabId" value="0" />
+    <input type="hidden" id="hdnBillID" value="0" />
+    <span id="txtManagerName"></span>
+    <div id="loading"></div>
+    <div id="DataRoaming2" style="display:none">
+        <input type="hidden" id="hidID" />
+        <input type="text" id="txtCountryName" />
+        <input type="text" id="txtOperator" />
+    </div>
+    <!-- Hidden tab panes (IDs referenced by myJS.js) -->
+    <div id="tab-pane-identification"><div id="mainTabContent"></div></div>
+    @* #tblArcBills moved out — it now lives in the visible #view-history card below *@
+    @if (isDeptRole)
+    {
+        <div id="tab-pane-department">
+            <table id="tblDeptBills" class="table">
+                <thead>
+                    <tr>
+                        <th>Bill Date</th>
+                        <th>Provider</th>
+                        <th>Employee Name</th>
+                        <th>Mobile</th>
+                        <th>Amount</th>
+                        <th>Currency</th>
+                        <th>Deduction</th>
+                        <th>Last Update</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    }
+    <div id="tab-pane-roaming">
+        <table id="tblDataRoaming" class="table">
+            <thead>
+                <tr>
+                    <th>Country</th>
+                    <th>Operator</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+    <!-- Print containers -->
+    <div id="rptAnalyzeBill">
+        <div id="finalHtml"><table id="myBillTable" style="width:100%"></table></div>
+        <div id="finalHtmlArc"><table id="myBillTableArc" style="width:100%"></table></div>
+    </div>
+    <!-- Delegate / approve buttons referenced by myJS.js -->
+    <button id="dropDownButton" data-bs-toggle="modal" data-bs-target="#delegateModal"></button>
+    <div id="myBillsFilter"><input type="checkbox" id="chkMyBillsOnly" /></div>
+
+    <!-- Hidden recalc spans — updated by recalcTotals() and refreshModalSummary().
+         ProcessBill / showWaiveSwal read these values. -->
+    <span id="alwCharge" style="display:none">0.000</span>
+    <span id="busCharge" style="display:none">0.000</span>
+    <span id="perCharge" style="display:none">0.000</span>
+    <span id="atot" style="display:none">0.000</span>
+    <span id="btot" style="display:none">0.000</span>
+    <span id="ptot" style="display:none">0.000</span>
+    <span id="plimit" style="display:none">0.000</span>
+    <span id="nettotal" style="display:none">0.000</span>
+</div>
+
+<!-- ════════════════════════════════════════════════
+     BILLS TABLE CARD
+═════════════════════════════════════════════════ -->
+<div class="tc tis-view is-active" id="view-mybills" data-view="mybills">
+
+    <!-- Desktop table — DataTables renders #tblBillMaster here -->
+    <div class="tw">
+        <table id="tblBillMaster" class="table table-hover align-middle w-100">
+            <thead>
+                <tr>
+                    @* Narrow data columns use a fixed width; the two text-heavy columns
+                       (Employee Name + Comment) are left without a width so DataTables
+                       gives them the remaining space. *@
+                    <th style="width:110px">Provider</th>
+                    <th class="text-center" style="width:110px">Date</th>
+                    <th>Employee Name</th>
+                    <th class="text-center" style="width:120px">Mobile</th>
+                    <th class="text-center" style="width:110px">Amount (KD)</th>
+                    <th class="text-center" style="width:115px">Last Updated</th>
+                    <th>Comment</th>
+                    <th class="text-center" style="width:130px">Action</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+
+    <!-- Mobile bill cards -->
+    <div class="mob-bills" id="mobCards"></div>
+</div>
+
+<!-- ════════════════════════════════════════════════
+     PENDING APPROVAL SECTION
+     Styles live in wwwroot/css/approval.css (linked from _Layout.cshtml).
+     Hidden by default. switchView('approval') in myJS.js toggles .is-active.
+═════════════════════════════════════════════════ -->
+
+<div id="tab-pane-approval" class="appr-pane tis-view" data-view="approval">
+
+    <!-- Table -->
+    <div id="apprTableSection" class="tw">
+        <table id="tblApprBills" class="table align-middle w-100">
+            <thead>
+                <tr>
+                    <th style="width:50px"></th>
+                    <th>Bill Date</th>
+                    <th>Employee</th>
+                    <th>Number</th>
+                    <th class="text-end">Bill Amount</th>
+                    <th class="text-end">Business Charges</th>
+                    <th class="text-end">Waiver</th>
+                    <th>Employee Comments</th>
+                    <th class="text-center" style="min-width:200px">Rejection Reason</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+
+    <!-- Mobile approval cards (visible only ≤768px when .tw is hidden) -->
+    <div class="mob-bills" id="mobApprCards"></div>
+
+    <!-- Footer actions -->
+    <div id="apprActions" class="appr-actions" style="display:none">
+
+        <button id="btnRejectSelected" class="btn-rejct" type="button" onclick="DoApprove(1)">
+            <svg class="svg-icon" width="18" height="18" viewBox="0 0 24 24" fill="none">
+                <circle cx="12" cy="12" r="9" stroke="#e24b4a" stroke-width="1.8" />
+                <path d="M15 9l-6 6M9 9l6 6" stroke="#ff8a8a" stroke-width="2" stroke-linecap="round" />
+            </svg>
+            Reject Selected
+        </button>
+
+        <button id="btnApproveSelected" class="btn-appr" type="button" onclick="DoApprove(4)">
+            <span class="btn-appr-icon"></span>
+            Approve Selected
+        </button>
+
+    </div>
+
+    <!-- Backwards-compat: count span myJS.js writes to -->
+    <span id="lblPendingApproval" style="display:none">0</span>
+
+</div>
+
+
+<!-- ════════════════════════════════════════════════
+     BILLS HISTORY SECTION
+     switchView('history') in myJS.js toggles .is-active here.
+     Rows populated by bindArchivedBills → setDataSourceArchived in myJS.js.
+═════════════════════════════════════════════════ -->
+<div id="view-history" class="tc tis-view" data-view="history">
+    <div class="tw">
+        <table id="tblArcBills" class="table align-middle w-100">
+            <thead>
+                <tr>
+                    <th>Bill Date</th>
+                    <th>Provider</th>
+                    <th>Employee Name</th>
+                    <th>Mobile</th>
+                    <th class="text-end">Amount</th>
+                    <th>Currency</th>
+                    <th class="text-end">Deduction</th>
+                    <th>Last Update</th>
+                    <th>Status</th>
+                    <th class="text-center" style="width:80px"></th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+
+    <!-- Mobile bill cards (visible only ≤768px, .tw is hidden then) -->
+    <div class="mob-bills" id="mobArcCards"></div>
+</div>
+
+
+<!-- ════════════════════════════════════════════════
+     MODAL PARTIALS — content lives in Views/User/Partials/
+═════════════════════════════════════════════════ -->
+@await Html.PartialAsync("Partials/_BillDetailModal")
+@await Html.PartialAsync("Partials/_ApprovalDetailModal")
+@await Html.PartialAsync("Partials/_DelegateModal")
+@await Html.PartialAsync("Partials/_EmployeePickerModal")
+@await Html.PartialAsync("Partials/_ContactModal")
+
+@section Scripts {
+    <script src="~/js/index-page.js" asp-append-version="true"></script>
+}

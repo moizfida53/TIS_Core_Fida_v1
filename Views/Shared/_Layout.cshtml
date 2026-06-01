@@ -1,0 +1,320 @@
+@{
+    var initials = (ViewBag.name as string)?.Length >= 2
+        ? (ViewBag.name as string).Substring(0, 2).ToUpper()
+        : "TI";
+    bool isDeptRole = ViewBag.RoleId?.ToString() == "6";
+
+    // Role-based admin sidebar (mirrors the legacy WebForms nav-menu in TIS_MVC):
+    //   role 3 (Administrator) → restricted: Reports + Dashboard only
+    //   role 8 (SuperAdmin)    → full: Admin, Bill Management, Settings, Reports, Dashboard
+    // Resolve the role from session (works on every page — admin actions don't
+    // call BindDefaultData so ViewBag.Roleid is sometimes empty). Falls back
+    // to ViewBag for completeness on pages that DO set it.
+    string _roleStr = Context.Session.GetString("EmpRoleID")
+                      ?? (string)(ViewBag.RoleId?.ToString() ?? "0");
+    int    _rid       = 0;
+    int    _roleIdInt = int.TryParse(_roleStr, out _rid) ? _rid : 0;
+    bool   isAdmin      = _roleIdInt == 3;
+    bool   isSuperAdmin = _roleIdInt == 8;
+    bool   showAdminNav = isAdmin || isSuperAdmin;
+
+    // ── Active nav-item detection ──────────────────────────────────────────────
+    // Read the current route so each nav link can compute its own active class
+    // without hardcoding "active" anywhere.
+    string _ctrl   = (ViewContext.RouteData.Values["controller"]?.ToString() ?? "").ToLower();
+    string _action = (ViewContext.RouteData.Values["action"]?.ToString()     ?? "").ToLower();
+
+    // Bills section
+    bool navMyBills   = _ctrl == "user";          // all bill tabs live on /User
+    // Admin section
+    bool navEmployee  = _ctrl == "admin" && (_action == "index" || _action == "");
+    bool navTelephone = _ctrl == "admin" && _action == "telephone";
+    bool navDelegate  = _ctrl == "admin" && _action == "delegate";
+    bool navSendEmail = _ctrl == "sendemail";
+    // Bill Management section
+    bool navImport      = _ctrl == "import"  && _action == "index";
+    bool navUnassigned  = _ctrl == "import"  && _action == "unassigned";
+    bool navForceBill   = _ctrl == "bill"    && _action == "index";
+    bool navChangeStatus = _ctrl == "bill"   && _action == "changestatus";
+    bool navReassign    = _ctrl == "bill"    && _action == "reassignbill";
+    // Settings section
+    bool navConfig      = _ctrl == "setting" && _action == "index";
+    bool navEmailTempl  = _ctrl == "email";
+    bool navPolicy      = _ctrl == "setting" && _action == "policy";
+    // Reports section
+    bool navPostReport   = _ctrl == "sap_pending";
+    bool navStatusReport = _ctrl == "billreport";
+    bool navDashboard    = _ctrl == "dashboard";
+
+    // Section expanded state — a section stays open when any of its children is active
+    bool adminExpanded    = navEmployee   || navTelephone || navDelegate  || navSendEmail;
+    bool billMgmtExpanded = navImport     || navUnassigned || navForceBill || navChangeStatus || navReassign;
+    bool settingsExpanded = navConfig     || navEmailTempl || navPolicy;
+    bool reportsExpanded  = navPostReport || navStatusReport || navDashboard;
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>@ViewData["Title"] | TIS</title>
+
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/approval.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/lib/datatables.net-bs5/dataTables.bootstrap5.min.css"          asp-append-version="true" />
+    <link rel="stylesheet" href="~/lib/datatables.net-responsive-bs5/responsive.bootstrap5.min.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/lib/font-awesome/css/all.min.css"    asp-append-version="true" />
+    <link rel="stylesheet" href="~/lib/sweetalert2/sweetalert2.min.css" asp-append-version="true" />
+</head>
+
+<body>
+
+<!-- ══════════════════════════════════════════════════════════════
+     LOADER OVERLAY
+══════════════════════════════════════════════════════════════════ -->
+<div id="loaderDiv">
+    <div class="app-loader-card">
+        <div class="app-loader-rings">
+            <span></span><span></span><span></span>
+            <i class="fa fa-file-invoice-dollar app-loader-icon"></i>
+        </div>
+        <div class="app-loader-title" id="loaderTitle">Loading…</div>
+        <div class="app-loader-sub" id="loaderSub">Please wait…</div>
+        <div class="app-loader-bar"><span></span></div>
+    </div>
+</div>
+
+<!-- Sidebar overlay (mobile tap-to-close) -->
+<div class="sb-ov" id="sbOv" onclick="closeSB()"></div>
+
+<!-- ══════════════════════════════════════════════════════════════
+     SIDEBAR
+══════════════════════════════════════════════════════════════════ -->
+<aside class="sidebar" id="sidebar">
+
+    <div class="sb-logo">
+            <img width="66" src="~/images/logo.png" />
+    </div>
+
+    <nav class="sb-nav">
+
+        @* ── Bills section ─────────────────────────────────────── *@
+        <div class="sb-section" data-section="bills">
+            <button type="button" class="sb-lbl sb-section-head">
+                <svg class="sb-section-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+                    <path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1z"/>
+                    <path d="M8 8h8M8 12h8M8 16h5"/>
+                </svg>
+                <span>Bills</span>
+                <i class="fa fa-chevron-down sb-section-arrow" aria-hidden="true"></i>
+            </button>
+            <div class="sb-section-body">
+                @* All four sidebar tab links use the same `tisGoTo` helper
+                   (defined in myJS.js). On the User/Index page it switches
+                   tabs locally with no navigation; on any other page it
+                   navigates to /User with a sessionStorage hint so the
+                   correct tab activates after the page loads. *@
+                <a class="ni @(navMyBills ? "active" : "")" href="/User" id="nav-mybills"
+                   onclick="return tisGoTo('mybills');">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                    </svg>
+                    My Bills
+                    <span class="nb" id="sbBadgePending">0</span>
+                </a>
+
+                <a class="ni" href="/User" id="nav-approval"
+                   onclick="return tisGoTo('approval');">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    Pending Approval
+                    <span class="nb" id="sbBadgeApproval" style="display:none">0</span>
+                </a>
+
+                <a class="ni" href="/User" id="nav-history"
+                   onclick="return tisGoTo('history');">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    Bills History
+                    <span class="nb" id="sbBadgeHistory" style="display:none">0</span>
+                </a>
+
+                @if (isDeptRole)
+                {
+                    <a class="ni" href="/User" id="nav-department"
+                       onclick="return tisGoTo('department');">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                        </svg>
+                        Department
+                    </a>
+                }
+            </div>
+        </div>
+
+        @* Legacy hidden compat hook — some JS references #btnAdminSidebar. *@
+        <a class="ni" href="/Admin" id="btnAdminSidebar" style="display:none">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+            </svg>
+            Admin Panel
+        </a>
+
+        @* ── Role-gated admin links ───────────────────────────────────
+           Role 3 (Administrator)  → Reports + Dashboard only
+           Role 8 (SuperAdmin)     → Admin, Bill Management, Settings, Reports, Dashboard *@
+        @if (isSuperAdmin)
+        {
+            <div class="sb-section @(!adminExpanded ? "is-collapsed" : "")" data-section="admin">
+                <button type="button" class="sb-lbl sb-section-head">
+                    <svg class="sb-section-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                        <circle cx="9" cy="7" r="4"/>
+                        <path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>
+                    </svg>
+                    <span>Admin</span>
+                    <i class="fa fa-chevron-down sb-section-arrow" aria-hidden="true"></i>
+                </button>
+                <div class="sb-section-body">
+                    <a class="ni @(navEmployee  ? "active" : "")" href="/Admin"><i class="fa fa-users fa-fw"></i>Manage Employee</a>
+                    <a class="ni @(navTelephone ? "active" : "")" href="/Admin/Telephone"><i class="fa fa-mobile-screen fa-fw"></i>Manage Telephone</a>
+                    <a class="ni @(navDelegate  ? "active" : "")" href="/Admin/Delegate"><i class="fa fa-share-nodes fa-fw"></i>Delegate Bills</a>
+                    <a class="ni @(navSendEmail ? "active" : "")" href="/SendEmail/SendEmail"><i class="fa fa-envelope fa-fw"></i>Send Email</a>
+                </div>
+            </div>
+
+            <div class="sb-section @(!billMgmtExpanded ? "is-collapsed" : "")" data-section="bill-mgmt">
+                <button type="button" class="sb-lbl sb-section-head">
+                    <svg class="sb-section-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+                        <path d="M9 2h6a1 1 0 0 1 1 1v1h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2V3a1 1 0 0 1 1-1z"/>
+                        <path d="M9 12h6M9 16h6M9 8h.01"/>
+                    </svg>
+                    <span>Bill Management</span>
+                    <i class="fa fa-chevron-down sb-section-arrow" aria-hidden="true"></i>
+                </button>
+                <div class="sb-section-body">
+                    <a class="ni @(navImport       ? "active" : "")" href="/Import"><i class="fa fa-file-import fa-fw"></i>Import Mobile Bills</a>
+                    <a class="ni @(navUnassigned   ? "active" : "")" href="/Import/UnAssigned"><i class="fa fa-circle-question fa-fw"></i>UnAssigned Bills</a>
+                    <a class="ni @(navForceBill    ? "active" : "")" href="/Bill"><i class="fa fa-file-invoice-dollar fa-fw"></i>Force Bill</a>
+                    <a class="ni @(navChangeStatus ? "active" : "")" href="/Bill/ChangeStatus"><i class="fa fa-arrows-rotate fa-fw"></i>Change Bill Status</a>
+                    <a class="ni @(navReassign     ? "active" : "")" href="/Bill/ReAssignBill"><i class="fa fa-shuffle fa-fw"></i>Re-Assign Bill</a>
+                </div>
+            </div>
+
+            <div class="sb-section @(!settingsExpanded ? "is-collapsed" : "")" data-section="settings">
+                <button type="button" class="sb-lbl sb-section-head">
+                    <svg class="sb-section-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+                        <circle cx="12" cy="12" r="3"/>
+                        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+                    </svg>
+                    <span>Settings</span>
+                    <i class="fa fa-chevron-down sb-section-arrow" aria-hidden="true"></i>
+                </button>
+                <div class="sb-section-body">
+                    <a class="ni @(navConfig     ? "active" : "")" href="/Setting"><i class="fa fa-gear fa-fw"></i>Configuration</a>
+                    <a class="ni @(navEmailTempl ? "active" : "")" href="/Email/Templates"><i class="fa fa-envelope-open-text fa-fw"></i>Email Template</a>
+                    <a class="ni @(navPolicy     ? "active" : "")" href="/Setting/Policy"><i class="fa fa-shield-halved fa-fw"></i>Manage Policy</a>
+                </div>
+            </div>
+        }
+
+        @if (showAdminNav)
+        {
+            <div class="sb-section @(!reportsExpanded ? "is-collapsed" : "")" data-section="reports">
+                <button type="button" class="sb-lbl sb-section-head">
+                    <svg class="sb-section-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+                        <path d="M3 3v18h18"/>
+                        <rect x="7" y="10" width="3" height="7" rx="1"/>
+                        <rect x="12" y="6" width="3" height="11" rx="1"/>
+                        <rect x="17" y="13" width="3" height="4" rx="1"/>
+                    </svg>
+                    <span>Reports</span>
+                    <i class="fa fa-chevron-down sb-section-arrow" aria-hidden="true"></i>
+                </button>
+                <div class="sb-section-body">
+                    <a class="ni @(navPostReport   ? "active" : "")" href="/SAP_Pending/SAP_Pending"><i class="fa fa-file-arrow-up fa-fw"></i>Post Report</a>
+                    <a class="ni @(navStatusReport ? "active" : "")" href="/billreport/billreport"><i class="fa fa-chart-line fa-fw"></i>Status Report</a>
+                    <a class="ni @(navDashboard    ? "active" : "")" href="/dashboard/IndexNew"><i class="fa fa-gauge-high fa-fw"></i>Dashboard Report</a>
+                </div>
+            </div>
+        }
+    </nav>
+
+    <div class="sb-foot">
+        <div class="ava">@initials</div>
+        <div style="min-width:0">
+            <div class="un">@ViewBag.name</div>
+            <div class="ur">Telecom Invoice System</div>
+        </div>
+    </div>
+
+</aside>
+
+<!-- ══════════════════════════════════════════════════════════════
+     MAIN
+══════════════════════════════════════════════════════════════════ -->
+<main class="main">
+
+    <!-- ── Topbar ── -->
+    <header class="topbar">
+        <button class="menu-btn" onclick="openSB()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <line x1="3" y1="6" x2="21" y2="6"/>
+                <line x1="3" y1="12" x2="21" y2="12"/>
+                <line x1="3" y1="18" x2="21" y2="18"/>
+            </svg>
+        </button>
+        <div class="bc">
+            @* <span class="bc-c" id="bcCurrent">@ViewData["Title"]</span> *@
+                <div class="appr-header">
+                    <div class="ico"><i class="fa fa-clock-rotate-left"></i></div>
+                    <div>
+                        <div id="bcCurrent" class="ttl">@ViewData["Title"]</div>
+                        
+                    </div>
+                </div>
+        </div>
+        <div class="tb-sp"></div>
+        <div class="srch">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="11" cy="11" r="8"/>
+                <path d="m21 21-4.35-4.35"/>
+            </svg>
+            <input type="text" placeholder="Search.." id="globalSearch">
+        </div>
+    </header>
+
+    <!-- ── Page content (from view) ── -->
+    <div class="content">
+        @RenderBody()
+    </div>
+
+</main>
+
+<!-- ══════════════════════════════════════════════════════════════
+     SCRIPTS — load order: jQuery → Bootstrap → DataTables → myJS → page
+══════════════════════════════════════════════════════════════════ -->
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+<script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+<script src="~/lib/datatables.net/dataTables.min.js"></script>
+<script src="~/lib/datatables.net-bs5/dataTables.bootstrap5.min.js"></script>
+<script src="~/lib/datatables.net-responsive.min.js"></script>
+<script src="~/lib/datatables.net-responsive-bs5/responsive.bootstrap5.min.js"></script>
+<script src="~/lib/sweetalert2/sweetalert2.min.js"></script>
+
+<!-- Server-side user context — injected before myJS.js so it reads real values.
+     Reading from session means these are populated on every page (admin actions
+     don't run UserController.BindDefaultData(), so ViewBag.UID is null there). -->
+<script>
+    var _tisUID         = @(int.TryParse(Context.Session.GetString("EmpUID"), out int __tisUid) ? __tisUid : 0);
+    var _tisRoleId      = '@(Context.Session.GetString("EmpRoleID") ?? (string)(ViewBag.Roleid ?? "0"))';
+    var _tisAdminRoleId = '@((string)(ViewBag.AdminRoleId ?? "0"))';
+</script>
+<script src="~/js/myJS.js" asp-append-version="true"></script>
+
+@await RenderSectionAsync("Scripts", required: false)
+
+</body>
+</html>

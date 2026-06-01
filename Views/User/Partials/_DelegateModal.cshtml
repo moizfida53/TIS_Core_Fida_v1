@@ -1,0 +1,75 @@
+@*
+    _DelegateModal.cshtml
+    Bill-delegation dialog. Wired by GetDelegate / SaveDelegate / UpdateDelegate / DeleteDelegate in myJS.js.
+    Opens the Employee Picker via Bootstrap modal-target on the search button.
+*@
+<div class="modal fade" id="delegateModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header py-2">
+                <h6 class="modal-title fw-bold"><i class="fa fa-share-nodes me-2"></i>Delegate Bills</h6>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="hidDID" />
+                <div class="delegate-panel">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label small fw-semibold mb-1">Delegate To</label>
+                            <div class="input-group input-group-sm">
+                                <input type="text" id="btnManagerLabel" class="form-control" placeholder="Select Employee" readonly />
+                                <button class="btn btn-outline-primary" type="button"
+                                        data-bs-toggle="modal" data-bs-target="#employeePickerModal">
+                                    <i class="fa fa-search"></i>
+                                </button>
+                            </div>
+                            <input type="hidden" id="hidManager" />
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label small fw-semibold mb-1">Start Date</label>
+                            <input type="date" id="StartInput" class="form-control form-control-sm" />
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label small fw-semibold mb-1">End Date</label>
+                            <input type="date" id="EndInput" class="form-control form-control-sm" />
+                        </div>
+                        <div class="col-md-6 d-flex gap-4 align-items-center">
+                            <div class="form-check">
+                                <input type="checkbox" class="form-check-input" id="chkIdt" />
+                                <label class="form-check-label small" for="chkIdt">Identify Bill</label>
+                            </div>
+                            <div class="form-check">
+                                <input type="checkbox" class="form-check-input" id="chkApp" />
+                                <label class="form-check-label small" for="chkApp">Approve Bill</label>
+                            </div>
+                        </div>
+                        <div class="col-md-6 d-flex gap-2 justify-content-end align-items-end">
+                            <button type="button" id="btnAdd" class="btn btn-primary btn-sm" onclick="delegateBill()">
+                                <i class="fa fa-plus me-1"></i>Add
+                            </button>
+                            <button type="button" id="btnUpdate" class="btn btn-warning btn-sm" style="display:none" onclick="UpdateDelegate()">
+                                <i class="fa fa-pen me-1"></i>Update
+                            </button>
+                            <button type="button" class="btn btn-outline-secondary btn-sm" onclick="ClearDelegate()">
+                                <i class="fa fa-xmark me-1"></i>Clear
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="table-responsive">
+                    <table id="tblDelegate" class="table table-sm table-hover table-bordered dt-section w-100">
+                        <thead><tr>
+                            <th>Delegate To</th><th class="text-center">Identify</th>
+                            <th class="text-center">Approve</th><th>Start Date</th>
+                            <th>End Date</th><th style="width:60px"></th>
+                        </tr></thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer py-2">
+                <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>

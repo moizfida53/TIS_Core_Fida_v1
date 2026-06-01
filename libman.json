@@ -1,0 +1,39 @@
+{
+  "version": "3.0",
+  "defaultProvider": "cdnjs",
+  "libraries": [
+    {
+      "library": "datatables.net-bs5@2.3.4",
+      "destination": "wwwroot/lib/datatables.net-bs5/"
+    },
+    {
+      "library": "datatables.net-responsive-bs5@3.0.7",
+      "destination": "wwwroot/lib/datatables.net-responsive-bs5/"
+    },
+    {
+      "library": "datatables.net@2.3.4",
+      "destination": "wwwroot/lib/datatables.net/"
+    },
+    {
+      "library": "bootstrap@5.3.3",
+      "destination": "wwwroot/lib/bootstrap/"
+    },
+    {
+      "library": "bootstrap-icons@1.13.1",
+      "destination": "wwwroot/lib/bootstrap-icons/"
+    },
+    {
+      "library": "font-awesome@7.0.1",
+      "destination": "wwwroot/lib/font-awesome/"
+    },
+    {
+      "library": "sweetalert2@11.23.0",
+      "destination": "wwwroot/lib/sweetalert2/"
+    },
+    {
+      "provider": "cdnjs",
+      "library": "Chart.js@4.5.0",
+      "destination": "wwwroot/lib/Chart.js/"
+    }
+  ]
+}

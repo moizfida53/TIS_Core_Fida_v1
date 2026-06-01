@@ -1,0 +1,64 @@
+// ============================================================================
+// site.scss  ←  ASP.NET Core MVC entry point
+//
+// This file compiles to wwwroot/css/site.css.
+// Referenced in _Layout.cshtml as:
+//   <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+//
+// SETUP OPTIONS — choose one:
+//
+// Option A: Web Compiler 2022 (VS extension by Failwyn)
+//   Right-click site.scss → Web Compiler → Compile File
+//   compilerconfig.json is auto-generated.
+//
+// Option B: LibMan + npm build task
+//   1. libman.json pulls Bootstrap SCSS into wwwroot/lib/bootstrap/scss/
+//   2. Add to package.json scripts:
+//      "build:css": "sass wwwroot/scss/site.scss wwwroot/css/site.css --style=compressed"
+//   3. Run: npm run build:css
+//
+// Option C: ASP.NET Core bundling (BundleConfig.json)
+//   Not recommended for SCSS — use Option A or B instead.
+//
+// IMPORT ORDER — DO NOT CHANGE:
+//   1. Your variables  (must come before Bootstrap so overrides compile in)
+//   2. Your mixins
+//   3. Bootstrap
+//   4. Base / resets
+//   5. Layout
+//   6. Pages
+// ============================================================================
+
+// 1. Design tokens (Bootstrap variable overrides must live here)
+@import 'abstracts/variables';
+
+// 2. Mixins
+@import 'abstracts/mixins';
+
+// 3. Bootstrap
+//    Path depends on how Bootstrap is installed:
+//
+//    Via LibMan (libman.json destination: wwwroot/lib/bootstrap/scss):
+@import '../lib/bootstrap/scss/bootstrap';
+//
+//    Via npm (node_modules in project root):
+//    @import '../../node_modules/bootstrap/scss/bootstrap';
+//
+//    Via Web Compiler nuget package path:
+//    @import '../../../node_modules/bootstrap/scss/bootstrap';
+
+// 4. Base — global resets, element defaults, utilities, print
+@import 'base/base';
+@import 'base/utilities';
+@import 'base/print';
+
+// 5. Layout — _Layout.cshtml shared chrome
+@import 'layout/navbar';
+@import 'layout/sidebar';
+
+// 6. Pages — one partial per View
+@import 'pages/index';
+@import 'pages/bill-details';
+@import 'pages/bill-master';
+@import 'pages/manage-employee';
+@import 'pages/import-invoice';

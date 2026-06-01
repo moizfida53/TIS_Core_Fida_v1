@@ -1,0 +1,159 @@
+@*
+    _BillDetailModal.cshtml
+    The main bill-identification modal. Driven by myJS.js (setDataSourceGridMaster,
+    showBillDetails, recalcTotals, ProcessBill, SaveChanges, Print).
+    Element IDs are read directly from JS — do not rename without updating myJS.js.
+*@
+<div class="tis-ov" id="billDetailOv">
+<div class="tis-modal" id="billDetailModal">
+
+    <!-- Header -->
+    <div class="mhdr">
+        <div class="mico">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+            </svg>
+        </div>
+        <div style="flex:1;min-width:0">
+            <div class="mttl" id="modalBillId">Bill Details</div>
+            <div class="msub" id="modalBillSub">Charge breakdown &amp; line items</div>
+        </div>
+        <!-- Header actions: Save + Print as big icon-only buttons, then close -->
+        <button class="mhdr-action a-save" id="btnSave" type="button"
+                onclick="SaveChanges()" title="Save changes" aria-label="Save">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                 stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/>
+                <polyline points="17 21 17 13 7 13 7 21"/>
+                <polyline points="7 3 7 8 15 8"/>
+            </svg>
+        </button>
+        <button class="mhdr-action a-print" type="button"
+                onclick="Print()" title="Print" aria-label="Print">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                 stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="6 9 6 2 18 2 18 9"/>
+                <path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/>
+                <rect x="6" y="14" width="12" height="8"/>
+            </svg>
+        </button>
+        <button class="mcls" id="closeBillModal" title="Close" aria-label="Close">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <line x1="18" y1="6" x2="6" y2="18"/>
+                <line x1="6" y1="6" x2="18" y2="18"/>
+            </svg>
+        </button>
+    </div>
+
+    <!-- Charge summary -->
+    <div class="csumm">
+        <!-- Desktop grid -->
+        <div class="csumm-desk">
+            <div class="csd-total">
+                <div class="cs-lbl">Bill Amount</div>
+                <div class="cs-val" id="cs_tot">0.000</div>
+            </div>
+            <div class="csd-grp-hdr csd-grp-hdr-allow">Allowance</div>
+            <div class="csd-grp-hdr csd-grp-hdr-biz">Business</div>
+            <div class="csd-side-cell csd-side-cell-w">
+                <div class="cs-lbl">Waiver Amount</div>
+                <div class="cs-val" id="cs_w">0.000</div>
+            </div>
+            <div class="csd-cell csd-cell-al">
+                <div class="cs-lbl">Limit</div>
+                <div class="cs-val" id="cs_al">0.000</div>
+            </div>
+            <div class="csd-cell csd-cell-ac">
+                <div class="cs-lbl">Charges</div>
+                <div class="cs-val" id="cs_ac">0.000</div>
+            </div>
+            <div class="csd-cell csd-cell-bl">
+                <div class="cs-lbl">Limit</div>
+                <div class="cs-val" id="cs_bl">0.000</div>
+            </div>
+            <div class="csd-cell csd-cell-bc">
+                <div class="cs-lbl">Charges</div>
+                <div class="cs-val" id="cs_bc">0.000</div>
+            </div>
+            <div class="csd-side-cell csd-side-cell-p">
+                <div class="cs-lbl">Personal Charges</div>
+                <div class="cs-val" id="cs_pd">0.000</div>
+            </div>
+            <div class="csd-net">
+                <div class="cs-lbl">Net Deductible</div>
+                <div class="cs-val" id="cs_net" style="font-size:24px">0.000</div>
+            </div>
+        </div>
+        <!-- Mobile pills -->
+        <div class="csumm-mob">
+            <div class="csm-pill p-allow"><div class="cs-lbl">Allowance</div><div class="cs-val" id="csm_al">0.000</div></div>
+            <div class="csm-pill p-biz">  <div class="cs-lbl">Business</div> <div class="cs-val" id="csm_bc">0.000</div></div>
+            <div class="csm-pill p-pers"> <div class="cs-lbl">Personal</div> <div class="cs-val" id="csm_pd">0.000</div></div>
+            <div class="csm-pill p-net">  <div class="cs-lbl">Net Ded.</div>  <div class="cs-val" id="csm_net">0.000</div></div>
+        </div>
+    </div>
+
+    <!-- Detail section -->
+    <div class="bds">
+
+        <!-- Desktop table — #lineCount kept as a hidden compat hook (myJS.js writes to it) -->
+        <span id="lineCount" style="display:none"></span>
+        <div class="dt-wrap">
+            <table class="dtbl" id="tblBillDetails">
+                <thead>
+                    <tr>
+                        <th>Call Date</th>
+                        <th>Call Time</th>
+                        <th>Trans Type</th>
+                        <th>Description</th>
+                        <th>Contact</th>
+                        <th class="r">Duration</th>
+                        <th class="r">Amount</th>
+                        <th class="c" style="min-width:180px">Identify Call</th>
+                        <th style="min-width:120px">Comment</th>
+                    </tr>
+                </thead>
+                <tbody id="detailTbl"></tbody>
+            </table>
+        </div>
+
+        <!-- Mobile slider (visible only ≤768px via CSS) -->
+        <div class="mds">
+            <div class="mds-hdr" style="padding:6px 4px;font-size:11px;color:var(--tx3);font-weight:600" id="slideCounter"></div>
+            <div id="sliderTrack" class="mds-track"></div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="mfoot">
+        <div class="mf-info d-flex align-items-center gap-3 flex-wrap">
+            <!-- Live Tag (moved here from above the grid) -->
+            <div class="d-flex align-items-center gap-2">
+                <span class="live-lbl">Live Tag</span>
+                <label class="live-tog">
+                    <input type="checkbox" id="chkLiveTag">
+                    <span class="live-sl"></span>
+                </label>
+            </div>
+            <!-- Change-All Call Type -->
+            <div class="d-flex align-items-center gap-2">
+                <label for="cmbChangeOpt" class="form-label mb-0 small fw-semibold" style="white-space:nowrap">Select Call Type:</label>
+                <select class="form-select form-select-sm" style="min-width:160px;font-size:12px"
+                        id="cmbChangeOpt"
+                        onchange="if (typeof applyChangeAllCallType==='function') applyChangeAllCallType(this);">
+                    <option value="0">-- Change All --</option>
+                    <option value="1">Business</option>
+                    <option value="2">Personal</option>
+                </select>
+            </div>
+        </div>
+        <button class="abtn a-process" id="btnProcess" onclick="ProcessBill()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+            Process
+        </button>
+    </div>
+
+</div><!-- /.tis-modal -->
+</div><!-- /.tis-ov -->

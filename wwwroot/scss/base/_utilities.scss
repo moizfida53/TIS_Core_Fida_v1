@@ -1,0 +1,75 @@
+// ============================================================================
+// base/_utilities.scss
+// Shared utility classes and global component overrides used across views.
+//
+// REMOVED (Bootstrap already covers these — use HTML utility classes instead):
+//   • .form-select-sm, .form-control-sm { font-size } → Bootstrap default
+//   • .form-label.small { margin-bottom }              → use mb-1 in HTML
+//
+// Retained only what Bootstrap cannot express alone.
+// ============================================================================
+
+// ── Background helpers ────────────────────────────────────────────────────────
+.bg-lightblue {
+  background: $brand-blue-light !important;
+}
+
+.bg-darkblue {
+  background-color: $brand-navy !important;
+  color: $color-surface;
+}
+
+// ── Typography helpers ────────────────────────────────────────────────────────
+// Bootstrap 5 ships fw-semibold (600) and fw-bold (700) but not fw-medium (500).
+.fw-medium {
+  font-weight: 500 !important;
+}
+
+// ── Button-sm enhancements ────────────────────────────────────────────────────
+// Applied globally to every .btn-sm.  Bootstrap handles sizing; we add the
+// lift-on-hover micro-interaction and icon sizing.
+.btn-sm {
+  padding:       0.375rem 0.75rem;
+  font-size:     0.875rem;
+  font-weight:   500;
+  border-radius: $radius-md;
+  transition:    transform 0.2s ease, box-shadow 0.2s ease;
+
+  &:hover  { transform: translateY(-1px); box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15); }
+  &:active { transform: translateY(0); }
+
+  i { font-size: 0.8rem; }
+}
+
+// ── Form helpers ──────────────────────────────────────────────────────────────
+// user-select: none on labels prevents accidental text-selection when clicking
+// a checkbox or radio quickly.
+.form-check-label {
+  font-size:   0.9rem;
+  user-select: none;
+}
+
+// ── Modal header — brand gradient ─────────────────────────────────────────────
+// All Bootstrap modals in the project inherit this deep-navy gradient header.
+.modal-header {
+  background: linear-gradient(135deg, $brand-primary 0%, $brand-navy-mid 100%);
+  color: $color-surface;
+  border-top-left-radius:  $radius-md;
+  border-top-right-radius: $radius-md;
+}
+
+.modal-content {
+  border-radius: $radius-md;
+  border:     none;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+}
+
+// ── Table-responsive rounding ─────────────────────────────────────────────────
+.table-responsive {
+  border-radius: 0 0 $radius-md $radius-md;
+}
+
+// ── Global loader overlay ─────────────────────────────────────────────────────
+// NOTE: the loader overlay + colourful card are defined in layout/_sidebar.scss
+// (single source of truth). The old #loaderDiv / .loader-box rules were removed
+// from here to avoid a duplicate, conflicting definition.

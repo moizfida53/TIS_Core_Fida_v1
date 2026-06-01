@@ -1,0 +1,48 @@
+@*
+    _ApprovalDetailModal.cshtml
+    Call-records dialog opened from the Pending Approval list (openWindow → getApprovalBill).
+    Header summary IDs (apprModalEmpName/Mobile/Date/Org) are populated by myJS.js
+    before the GET /Ajax/GetBillDetailsApproval call returns.
+*@
+<div class="modal fade" id="approvalDetailModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+        <div class="modal-content">
+
+            <!-- Header — populated by getApprovalBill() -->
+            <div class="modal-header">
+                <div class="ap-mhdr">
+                    <div class="ap-mico"><i class="fa fa-file-invoice"></i></div>
+                    <div>
+                        <div class="ap-mtit"><span id="apprModalEmpName">—</span></div>
+                        <div class="ap-msub">
+                            <i class="fa fa-mobile-screen-button me-1"></i><span id="apprModalMobile">—</span>
+                            &nbsp;·&nbsp;<i class="fa fa-calendar me-1"></i><span id="apprModalDate">—</span>
+                            &nbsp;·&nbsp;<i class="fa fa-building me-1"></i><span id="apprModalOrg">—</span>
+                        </div>
+                    </div>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <div class="modal-body">
+                <!-- Desktop table — hidden on mobile in favor of #apprDetMobCards -->
+                <div class="table-responsive tw appr-det-desk">
+                    <table id="tblApprDet" class="table table-hover w-100">
+                        <thead><tr>
+                            <th>Call Date</th><th>Call Time</th><th>Trans Type</th>
+                            <th>Description</th><th>Duration</th><th class="text-end">Amount</th>
+                            <th>Call Type</th><th>Comment</th>
+                        </tr></thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+
+                <!-- Mobile cards — populated by setDataSourceGridApproval -->
+                <div id="apprDetMobCards" class="appr-det-mob"></div>
+            </div>
+            <div class="modal-footer py-2">
+                <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
