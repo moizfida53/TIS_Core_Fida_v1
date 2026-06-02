@@ -11962,6 +11962,23 @@ body {
   border-radius: 0 0 8px 8px;
 }
 
+.btn-primary {
+  --bs-btn-color: #fff;
+  --bs-btn-bg: #22a9bc;
+  --bs-btn-border-color: #0d6efd;
+  --bs-btn-hover-color: #fff;
+  --bs-btn-hover-bg: #676767;
+  --bs-btn-hover-border-color: #0a58ca;
+  --bs-btn-focus-shadow-rgb: 49, 132, 253;
+  --bs-btn-active-color: #fff;
+  --bs-btn-active-bg: #0a58ca;
+  --bs-btn-active-border-color: #0a53be;
+  --bs-btn-active-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125);
+  --bs-btn-disabled-color: #fff;
+  --bs-btn-disabled-bg: #0d6efd;
+  --bs-btn-disabled-border-color: #0d6efd;
+}
+
 @media print {
   .bill-info-card {
     background: #ffffff !important;
@@ -13166,7 +13183,7 @@ table.table.dataTable > tbody > tr.selected > * {
 }
 
 .mhdr {
-  background: var(--coal);
+  background: var(--teal);
   padding: 16px 20px;
   display: flex;
   align-items: center;
@@ -15898,6 +15915,142 @@ table {
     padding: 14px 12px;
   }
   .imp-summary-row {
+    flex-direction: column;
+  }
+}
+.force-bill-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+#tblForceBill thead th {
+  background: #1a3a6e;
+  color: #ffffff;
+  font-size: 12px;
+  white-space: nowrap;
+  vertical-align: middle;
+}
+#tblForceBill tbody tr {
+  transition: background 0.12s;
+}
+#tblForceBill tbody tr:hover {
+  background: #dbeafe;
+}
+#tblForceBill tbody td {
+  vertical-align: middle;
+  font-size: 13px;
+}
+
+#chkSelectAll,
+#tblForceBill .row-chk {
+  cursor: pointer;
+  width: 16px;
+  height: 16px;
+  accent-color: #2563eb;
+}
+
+#modalForceBill .modal-header {
+  background: #1a3a6e;
+  color: #ffffff;
+  border-bottom: none;
+  border-radius: 10px 10px 0 0;
+}
+#modalForceBill .modal-content {
+  border: none;
+  border-radius: 10px;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.18);
+}
+#modalForceBill .modal-footer {
+  border-top: 1px solid #d1dbe8;
+}
+#modalForceBill .text-uppercase.small {
+  letter-spacing: 0.6px;
+  color: #64748b;
+}
+
+.force-bill-spinner-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: rgba(0, 0, 0, 0.65);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.force-bill-spinner-overlay.d-none {
+  display: none !important;
+}
+
+.force-bill-spinner-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: rgba(0, 0, 0, 0.85);
+  padding: 32px 48px;
+  border-radius: 12px;
+}
+.force-bill-spinner-box p {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+@media (max-width: 767px) {
+  #tblForceBill thead tr {
+    display: none;
+  }
+  #tblForceBill tbody tr {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    border: 1px solid #d1dbe8;
+    border-radius: 12px;
+    margin-bottom: 12px;
+    padding: 12px;
+    background: #ffffff;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  }
+  #tblForceBill tbody td {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border: none !important;
+    padding: 4px 2px !important;
+    font-size: 13px;
+    border-bottom: 1px dashed #e8edf5 !important;
+  }
+  #tblForceBill tbody td:first-child {
+    justify-content: flex-start;
+    border-bottom: none !important;
+  }
+  #tblForceBill tbody td:last-child {
+    border-bottom: none !important;
+  }
+  #tblForceBill tbody td::before {
+    content: attr(data-label);
+    font-weight: 600;
+    color: #64748b;
+    text-align: left;
+    margin-right: 12px;
+    flex-shrink: 0;
+    font-size: 11px;
+    text-transform: uppercase;
+  }
+  #tblForceBill tbody td:first-child::before {
+    display: none;
+  }
+  .force-bill-spinner-box {
+    padding: 24px 28px;
+  }
+  .force-bill-spinner-box p {
+    font-size: 14px;
+  }
+}
+@media (max-width: 375px) {
+  #modalForceBill .modal-body .d-flex.flex-wrap {
     flex-direction: column;
   }
 }

@@ -50,6 +50,7 @@
 // 4. Base — global resets, element defaults, utilities, print
 @import 'base/base';
 @import 'base/utilities';
+@import 'base/overrides';   // Bootstrap component overrides (must follow bootstrap)
 @import 'base/print';
 
 // 5. Layout — _Layout.cshtml shared chrome
@@ -62,3 +63,4 @@
 @import 'pages/bill-master';
 @import 'pages/manage-employee';
 @import 'pages/import-invoice';
+@import 'pages/force-bill';

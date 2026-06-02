@@ -1,0 +1,94 @@
+@{
+    ViewData["Title"] = "Configuration";
+    Layout = "_Layout";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/config.css" asp-append-version="true" />
+}
+
+<div class="cfg-page" id="view-config">
+
+    <div class="imp-form-card">
+        <h6 class="cfg-section-title"><i class="fa fa-bell me-1"></i>Reminders</h6>
+        <div class="row g-3 mb-2">
+            <div class="col-md-3">
+                <label class="tel-lbl">Employee Reminder</label>
+                <div class="input-group">
+                    <input id="txtEmpReminder" type="text" class="form-control tel-input" autocomplete="off" />
+                    <span class="input-group-text">days</span>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <label class="tel-lbl">Manager Complaint Reminder</label>
+                <div class="input-group">
+                    <input id="txtMgrReminder" type="text" class="form-control tel-input" autocomplete="off" />
+                    <span class="input-group-text">days</span>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <label class="tel-lbl">Force Bill Reminder</label>
+                <div class="input-group">
+                    <input id="txtFBReminder" type="text" class="form-control tel-input" autocomplete="off" />
+                    <span class="input-group-text">days</span>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <label class="tel-lbl">Line Manager Approval Reminder</label>
+                <div class="input-group">
+                    <input id="txtLMReminder" type="text" class="form-control tel-input" autocomplete="off" />
+                    <span class="input-group-text">days</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="imp-form-card">
+        <h6 class="cfg-section-title"><i class="fa fa-envelope me-1"></i>Mail &amp; Host</h6>
+        <div class="row g-3">
+            <div class="col-md-3">
+                <label class="tel-lbl">SMTP Settings</label>
+                <input id="txtSMTP" type="text" class="form-control tel-input" autocomplete="off" />
+            </div>
+            <div class="col-md-3">
+                <label class="tel-lbl">Admin Email</label>
+                <input id="txtAdminEmail" type="text" class="form-control tel-input" autocomplete="off" />
+            </div>
+            <div class="col-md-3">
+                <label class="tel-lbl">Host URL</label>
+                <input id="txtHostUrl" type="text" class="form-control tel-input" autocomplete="off" />
+            </div>
+            <div class="col-md-3">
+                <label class="tel-lbl">Supervisor Grade</label>
+                <input id="txtSupGrade" type="text" class="form-control tel-input" autocomplete="off" />
+            </div>
+        </div>
+    </div>
+
+    <div class="imp-form-card">
+        <h6 class="cfg-section-title"><i class="fa fa-sliders me-1"></i>Feature Flags</h6>
+        <div class="row g-3 cfg-flags">
+            <div class="col-lg-3 col-md-4 col-sm-6"><div class="form-check"><input class="form-check-input" type="checkbox" id="chkGrade"><label class="form-check-label" for="chkGrade">Enable Grade</label></div></div>
+            <div class="col-lg-3 col-md-4 col-sm-6"><div class="form-check"><input class="form-check-input" type="checkbox" id="chkEmail"><label class="form-check-label" for="chkEmail">Don't Send Email</label></div></div>
+            <div class="col-lg-3 col-md-4 col-sm-6"><div class="form-check"><input class="form-check-input" type="checkbox" id="chkHidePerCalls"><label class="form-check-label" for="chkHidePerCalls">Hide Personal Calls</label></div></div>
+            <div class="col-lg-3 col-md-4 col-sm-6"><div class="form-check"><input class="form-check-input" type="checkbox" id="chkGM"><label class="form-check-label" for="chkGM">Skip GM Approval</label></div></div>
+            <div class="col-lg-3 col-md-4 col-sm-6"><div class="form-check"><input class="form-check-input" type="checkbox" id="chkDiscrepancy"><label class="form-check-label" for="chkDiscrepancy">Enable Discrepancy</label></div></div>
+            <div class="col-lg-3 col-md-4 col-sm-6"><div class="form-check"><input class="form-check-input" type="checkbox" id="chkSkipAppBusZero"><label class="form-check-label" for="chkSkipAppBusZero">Skip Approval if Business Charges = 0</label></div></div>
+            <div class="col-lg-3 col-md-4 col-sm-6"><div class="form-check"><input class="form-check-input" type="checkbox" id="chkDedBusCharges"><label class="form-check-label" for="chkDedBusCharges">Deduct Business Charges</label></div></div>
+            <div class="col-lg-3 col-md-4 col-sm-6"><div class="form-check"><input class="form-check-input" type="checkbox" id="chkZeroUnlimited"><label class="form-check-label" for="chkZeroUnlimited">Zero Business Limit = Unlimited</label></div></div>
+            <div class="col-lg-3 col-md-4 col-sm-6"><div class="form-check"><input class="form-check-input" type="checkbox" id="chkAlwWav"><label class="form-check-label" for="chkAlwWav">Allow Waiver</label></div></div>
+            <div class="col-lg-3 col-md-4 col-sm-6"><div class="form-check"><input class="form-check-input" type="checkbox" id="chkDelete"><label class="form-check-label" for="chkDelete">Enable Delete in Import</label></div></div>
+            <div class="col-lg-3 col-md-4 col-sm-6"><div class="form-check"><input class="form-check-input" type="checkbox" id="chkAlwTrainFB"><label class="form-check-label" for="chkAlwTrainFB">Allow Train in Force Bill</label></div></div>
+            <div class="col-lg-3 col-md-4 col-sm-6"><div class="form-check"><input class="form-check-input" type="checkbox" id="chkAllowance"><label class="form-check-label" for="chkAllowance">Hide Allowance Limit</label></div></div>
+            <div class="col-lg-3 col-md-4 col-sm-6"><div class="form-check"><input class="form-check-input" type="checkbox" id="chkPersonal"><label class="form-check-label" for="chkPersonal">Hide Personal Limit</label></div></div>
+        </div>
+
+        <div class="d-flex justify-content-end mt-3">
+            <button id="btnSave" type="button" class="btn btn-primary px-4"><i class="fa fa-save me-1"></i>Save Configuration</button>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/Config.js" asp-append-version="true"></script>
+}

@@ -215,35 +215,69 @@ $(document).ready(function () {
 
     $("#btnAdmin").off('click').on('click', function () { OpenAdmin(); });
 
-    // ── Sidebar section collapse/expand ──
+    // ── Sidebar section collapse/expand (accordion) ──
     // Each .sb-section has a clickable .sb-section-head (button + chevron).
-    // Click toggles .is-collapsed; state is keyed by data-section and survives reloads.
+    // Only ONE section stays expanded at a time: opening one collapses the rest.
+    // The currently-open section is keyed by data-section and survives reloads.
     (function () {
-        var STORE_KEY = 'tis.sidebar.collapsed';
-        var collapsed = {};
-        try { collapsed = JSON.parse(localStorage.getItem(STORE_KEY) || '{}') || {}; } catch (e) {}
+        var STORE_KEY = 'tis.sidebar.openSection';
+        var sections  = document.querySelectorAll('.sidebar .sb-section');
+        if (!sections.length) return;
 
-        // Restore saved state on load — if the user has toggled a section before,
-        // honour that; otherwise leave whatever the markup specifies (Bills open,
-        // the rest collapsed by default).
-        document.querySelectorAll('.sidebar .sb-section').forEach(function (sec) {
-            var key = sec.getAttribute('data-section') || '';
-            if (!key || !(key in collapsed)) return;
-            if (collapsed[key]) sec.classList.add('is-collapsed');
-            else                sec.classList.remove('is-collapsed');
-        });
+        // Collapse every section except the one whose data-section === openKey.
+        // Passing null/'' collapses all of them.
+        function applyOpen(openKey) {
+            sections.forEach(function (sec) {
+                var key = sec.getAttribute('data-section') || '';
+                sec.classList.toggle('is-collapsed', key !== openKey);
+            });
+        }
 
-        // Toggle on header click — delegated so it works for any sb-section now or later
+        function persist(openKey) {
+            try {
+                if (openKey) localStorage.setItem(STORE_KEY, openKey);
+                else         localStorage.removeItem(STORE_KEY);
+            } catch (e) {}
+        }
+
+        // Restore on load: honour the saved open section if it still exists;
+        // otherwise fall back to whichever section the markup left expanded
+        // (Bills by default), enforcing single-open from the start.
+        var saved = null;
+        try { saved = localStorage.getItem(STORE_KEY); } catch (e) {}
+
+        var hasSaved = false;
+        if (saved) {
+            sections.forEach(function (sec) {
+                if ((sec.getAttribute('data-section') || '') === saved) hasSaved = true;
+            });
+        }
+
+        if (hasSaved) {
+            applyOpen(saved);
+        } else {
+            // First expanded section in markup wins; collapse the others.
+            var firstOpen = null;
+            sections.forEach(function (sec) {
+                if (firstOpen === null && !sec.classList.contains('is-collapsed'))
+                    firstOpen = sec.getAttribute('data-section') || '';
+            });
+            applyOpen(firstOpen);
+            persist(firstOpen);
+        }
+
+        // Header click — delegated so it works for any sb-section now or later.
         $(document).off('click.sbSection').on('click.sbSection', '.sidebar .sb-section-head', function (e) {
             e.preventDefault();
             var sec = this.closest('.sb-section');
             if (!sec) return;
-            sec.classList.toggle('is-collapsed');
             var key = sec.getAttribute('data-section') || '';
-            if (key) {
-                collapsed[key] = sec.classList.contains('is-collapsed');
-                try { localStorage.setItem(STORE_KEY, JSON.stringify(collapsed)); } catch (e) {}
-            }
+
+            // Clicking the open section closes it (all collapsed); clicking a
+            // collapsed section opens it alone and collapses every other one.
+            var openKey = sec.classList.contains('is-collapsed') ? key : '';
+            applyOpen(openKey);
+            persist(openKey);
         });
     })();
 

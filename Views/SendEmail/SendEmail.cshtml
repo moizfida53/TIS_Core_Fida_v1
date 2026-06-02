@@ -1,0 +1,110 @@
+@{
+    ViewData["Title"] = "Send Email";
+    Layout = "_Layout";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/send-email.css" asp-append-version="true" />
+}
+
+<div class="se-page" id="view-send-email">
+
+    <!-- ── Toolbar (Send · Delete · Search) — matches Manage Employee ──────── -->
+    <div class="tel-toolbar">
+        <div class="d-flex gap-2 align-items-center flex-wrap">
+            <button id="btnSend" type="button" class="btn btn-success btn-sm px-3">
+                <i class="fa fa-paper-plane me-1"></i>Send Email
+            </button>
+            <button id="btnDeleteEmail" type="button" class="btn btn-danger btn-sm px-3">
+                <i class="fa fa-trash me-1"></i>Delete
+            </button>
+        </div>
+        <div class="tel-search">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+            </svg>
+            <input id="txtSearchEmail" type="text" placeholder="Search emails…" autocomplete="off" />
+        </div>
+    </div>
+
+    <!-- ── Themed grid ────────────────────────────────────────────────────── -->
+    <div class="tel-grid-wrap">
+        <table id="tblSendEmail" class="table table-hover align-middle w-100">
+            <thead>
+                <tr>
+                    <th class="text-center" style="width:36px">
+                        <input type="checkbox" id="chkSelectAll" class="form-check-input" title="Select all" />
+                    </th>
+                    <th data-label="Bill Date">Bill Date</th>
+                    <th data-label="Subject">Subject</th>
+                    <th data-label="Email Text">Email Text</th>
+                    <th data-label="Email From">Email From</th>
+                    <th data-label="Email To">Email To</th>
+                    <th data-label="CC">CC</th>
+                    <th data-label="Sent" class="text-center">Sent</th>
+                    <th data-label="Edit" class="text-center" style="width:60px">Edit</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>
+
+<!-- ── Edit modal (teal theme — same as Manage Employee) ──────────────────── -->
+<div class="modal fade tel-modal" id="modalEditEmail" tabindex="-1" aria-labelledby="modalEditEmailLabel"
+     aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+
+            <div class="modal-header tel-modal-hdr">
+                <div class="tel-modal-icon"><i class="fa fa-envelope-open-text"></i></div>
+                <div class="flex-grow-1">
+                    <div class="tel-modal-title" id="modalEditEmailLabel">Edit Email</div>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <div class="modal-body">
+                <input type="hidden" id="hidEmailId" />
+                <input type="hidden" id="hidBillId" />
+
+                <!-- Read-only context -->
+                <div class="row g-2 mb-3 se-readonly">
+                    <div class="col-md-4"><span class="se-label">Bill Date:</span> <span id="lblBillDate">—</span></div>
+                    <div class="col-md-8"><span class="se-label">Subject:</span> <span id="lblSubject">—</span></div>
+                    <div class="col-12"><span class="se-label">From:</span> <span id="lblFrom">—</span></div>
+                </div>
+
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <label for="txtEmailTo" class="tel-lbl"><i class="fa fa-user"></i>Email To</label>
+                        <input id="txtEmailTo" type="text" class="form-control tel-input" autocomplete="off" />
+                    </div>
+                    <div class="col-md-6">
+                        <label for="txtCC" class="tel-lbl"><i class="fa fa-users"></i>CC</label>
+                        <input id="txtCC" type="text" class="form-control tel-input" autocomplete="off" />
+                    </div>
+                </div>
+
+                <div>
+                    <label for="txtEmailText" class="tel-lbl"><i class="fa fa-align-left"></i>Email Text</label>
+                    <textarea id="txtEmailText" class="form-control tel-input" rows="8"></textarea>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fa fa-times me-1"></i>Cancel
+                </button>
+                <button id="btnSaveEmail" type="button" class="btn btn-success">
+                    <i class="fa fa-save me-1"></i>Save
+                </button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/sendEmail.js" asp-append-version="true"></script>
+}

@@ -248,6 +248,7 @@
         clearEmpForm();
         $('#empModalTitle').text('Add Employee');
         $('#btnAdd').show(); $('#btnUpdate').hide();
+        $('#btnAdSearch').show();   // AD search available when adding
         empSnapshot    = getEmpSnapshot();
         allowEmpClose  = false;
     };
@@ -273,6 +274,7 @@
         setPickerValue('company',    emp.companyId || '');
         $('#empModalTitle').text('Edit Employee');
         $('#btnAdd').hide(); $('#btnUpdate').show();
+        $('#btnAdSearch').hide();   // AD search hidden when editing
         empSnapshot   = getEmpSnapshot();
         allowEmpClose = false;
         bootstrap.Modal.getOrCreateInstance(document.getElementById('employeeModal')).show();
@@ -570,6 +572,47 @@
     }
 
     // ─────────────────────────────────────────────────────────────────────────
+    //  AD SEARCH  (look up a single user in Active Directory by username)
+    //  Triggered by the "AD" button next to the Username field.
+    //  NOTE: wire the URL below to your AD lookup endpoint when available; it is
+    //  expected to return the employee fields to pre-fill the modal.
+    // ─────────────────────────────────────────────────────────────────────────
+    function adSearch(username) {
+        var $btn = $('#btnAdSearch');
+        $btn.prop('disabled', true);
+        $.ajax({
+            type: 'GET',
+            url: '/Admin/AdLookup?username=' + encodeURIComponent(username),
+            dataType: 'json',
+            success: function (res) {
+                if (!res || !res.success) {
+                    Swal.fire({ icon: 'error', title: 'AD Search Failed', text: (res && res.message) ? res.message : 'User not found in Active Directory.' });
+                    return;
+                }
+                var d = res.data || {};
+                // Populate the modal fields from AD (only overwrite when AD has a value)
+                if (d.displayName)    $('#txtName').val(d.displayName);
+                if (d.department)     $('#txtDept').val(d.department);
+                if (d.title)          $('#txtDesc').val(d.title);             // Title → Designation
+                if (d.employeeNumber) $('#txtEmployeeNo').val(d.employeeNumber); // → Emp No.
+                if (d.email)          $('#txtEmail').val(d.email);
+                // Mobile is returned in d.mobile — there is no Mobile field on the
+                // modal yet, so it is left unmapped. (Ask to add one if needed.)
+
+                Swal.fire({
+                    toast: true, position: 'top-end', icon: 'success',
+                    title: 'AD details loaded for "' + username + '"',
+                    showConfirmButton: false, timer: 1800
+                });
+            },
+            error: function (xhr) {
+                Swal.fire({ icon: 'error', title: 'AD Search Failed', text: xhr.responseText || 'Could not reach Active Directory.' });
+            },
+            complete: function () { $btn.prop('disabled', false); }
+        });
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
     //  EXPORT  (CSV — no extra libraries)
     // ─────────────────────────────────────────────────────────────────────────
     function exportToExcel() {
@@ -603,6 +646,16 @@
         // Sync AD + Export
         $(document).on('click', '#btnSyncAD',      function () { syncAD(); });
         $(document).on('click', '#btnExportExcel', function () { exportToExcel(); });
+
+        // AD search (next to Username) — require a username first
+        $(document).on('click', '#btnAdSearch', function () {
+            var username = ($('#txtUsername').val() || '').trim();
+            if (!username) {
+                flash('#txtUsername', 'Please enter a Username before searching AD');
+                return;
+            }
+            adSearch(username);
+        });
 
         // CC modal buttons
         $(document).on('click', '#btnAddCC',    function () { addCC(); });

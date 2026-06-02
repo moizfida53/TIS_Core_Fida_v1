@@ -100,3 +100,8 @@ $font-size-base: 0.875rem;       // 14px base; bumped to 16px at md in _base.scs
     --sw: 248px;   --th: 60px;
     --r: 10px;     --rsm: 6px;
 }
+
+// NOTE: Bootstrap component overrides like `.btn-primary { … }` do NOT belong
+// here — this file is imported BEFORE Bootstrap, so Bootstrap's own rule would
+// win. The .btn-primary override now lives in base/_overrides.scss, which is
+// imported AFTER Bootstrap. (Variable overrides like $primary DO belong here.)

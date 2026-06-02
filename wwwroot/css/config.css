@@ -1,0 +1,33 @@
+/* ============================================================================
+   config.css — styles for Views/Setting/Config.cshtml (Configuration page)
+   Reuses the shared imp-form-card / tel-* chrome.
+   ============================================================================ */
+
+.cfg-page { padding: 4px 0 16px; }
+
+.cfg-page .imp-form-card {
+    background: #fff;
+    border: 1px solid var(--bd, #e5e7eb);
+    border-radius: 10px;
+    padding: 18px 22px;
+    margin-bottom: 16px;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, .05);
+}
+
+.cfg-section-title {
+    font-weight: 700;
+    font-size: 14px;
+    color: #1a3a6e;
+    margin-bottom: 14px;
+}
+.cfg-section-title .fa { color: var(--teal-dk, #1e8f99); }
+
+.cfg-page .tel-lbl { font-size: 12.5px; font-weight: 600; color: var(--tx2, #334155); margin-bottom: 6px; }
+.cfg-page .tel-input { border: 1.5px solid #e2e8f0; border-radius: 8px; transition: border-color .15s, box-shadow .15s; }
+.cfg-page .tel-input:focus { outline: none; border-color: var(--teal, #2ab3bf); box-shadow: 0 0 0 3px rgba(42, 179, 191, .18); }
+.cfg-page .input-group-text { background: #f1f5f9; border: 1.5px solid #e2e8f0; border-left: 0; font-size: 12px; color: var(--tx3, #64748b); }
+
+.cfg-flags .form-check { padding: 8px 10px 8px 32px; border: 1px solid var(--bd, #e5e7eb); border-radius: 8px; background: #f8fafc; height: 100%; }
+.cfg-flags .form-check-input { cursor: pointer; accent-color: var(--teal, #2ab3bf); }
+.cfg-flags .form-check-input:checked { background-color: var(--teal, #2ab3bf); border-color: var(--teal, #2ab3bf); }
+.cfg-flags .form-check-label { font-size: 13px; color: var(--tx2, #334155); cursor: pointer; }

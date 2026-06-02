@@ -1,0 +1,114 @@
+/* ============================================================================
+   manage-call-type.css — styles for Views/Setting/ManageCallType.cshtml
+   (Manage Policy page). Reuses the shared tel-* / imp-form-card chrome.
+   ============================================================================ */
+
+.mct-page { padding: 4px 0 16px; }
+
+/* Card + grid chrome (mirrors the other admin pages) */
+.mct-page .imp-form-card {
+    background: #fff;
+    border: 1px solid var(--bd, #e5e7eb);
+    border-radius: 10px;
+    padding: 20px 24px;
+    margin-bottom: 16px;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, .05);
+}
+
+.mct-page .tel-grid-wrap { background: #fff; border: 1px solid var(--bd, #e5e7eb); border-radius: 10px; padding: 12px; }
+.mct-page .tel-grid-wrap table.dataTable thead th { background: #e8edf7; color: #1a3a6e; font-size: 13px; font-weight: 600; }
+
+.mct-page .tel-lbl {
+    font-size: 13px; font-weight: 600; color: var(--tx2, #334155);
+    margin-bottom: 6px; letter-spacing: .2px;
+}
+.mct-page .tel-lbl .fa { color: var(--teal-dk, #1e8f99); }
+
+.mct-page .tel-input {
+    border: 1.5px solid #e2e8f0; border-radius: 8px;
+    transition: border-color .15s, box-shadow .15s;
+}
+.mct-page .tel-input:focus { outline: none; border-color: var(--teal, #2ab3bf); box-shadow: 0 0 0 3px rgba(42, 179, 191, .18); }
+
+/* Multi-select Description box (lives inside the policy modal) */
+#cmbDesc.tel-input { padding: 6px 8px; }
+#cmbDesc.tel-input option { padding: 4px 6px; border-radius: 4px; }
+#cmbDesc.tel-input option:checked {
+    background: var(--teal, #2ab3bf) linear-gradient(0deg, var(--teal, #2ab3bf), var(--teal, #2ab3bf));
+    color: #fff;
+}
+
+/* Employee picker button */
+.mct-emp-btn {
+    text-align: left;
+    border: 1.5px solid #e2e8f0;
+    color: var(--tx2, #334155);
+    background: #fff;
+    height: 40px;
+    border-radius: 8px;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.mct-emp-btn:hover { border-color: var(--teal, #2ab3bf); color: var(--teal-dk, #1e8f99); background: #fff; }
+.mct-emp-btn.has-selection { border-color: var(--teal, #2ab3bf); color: var(--teal-dk, #1e8f99); font-weight: 600; }
+
+/* Flags row aligns with inputs */
+.mct-flags { height: 40px; }
+
+/* Toolbar + search (same look as other grids) */
+.mct-page .tel-toolbar { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 12px; flex-wrap: wrap; }
+.mct-page .tel-search {
+    display: flex; align-items: center; gap: 7px;
+    background: #f8fafc; border: 1px solid #e5e7eb;
+    border-radius: 7px; padding: 6px 12px; min-width: 240px; transition: all .15s;
+}
+.mct-page .tel-search:focus-within { border-color: var(--teal, #2ab3bf); background: #fff; box-shadow: 0 0 0 3px rgba(42, 179, 191, .15); }
+.mct-page .tel-search svg   { width: 14px; height: 14px; opacity: .55; flex-shrink: 0; }
+.mct-page .tel-search input { border: 0; background: transparent; outline: none; font-size: 12.5px; color: var(--tx, #0f172a); width: 100%; padding: 0; }
+
+/* Row action buttons in the grid */
+.mct-row-btn {
+    width: 30px; height: 30px;
+    border-radius: 7px; border: 1px solid var(--bd, #e5e7eb);
+    background: #fff;
+    display: inline-flex; align-items: center; justify-content: center;
+    cursor: pointer; transition: all .15s; font-size: 12px;
+}
+.mct-row-btn.edit   { color: var(--teal-dk, #1e8f99); }
+.mct-row-btn.edit:hover   { background: var(--teal, #2ab3bf); color: #fff; border-color: var(--teal, #2ab3bf); }
+.mct-row-btn.delete { color: #b91c1c; }
+.mct-row-btn.delete:hover { background: #dc3545; color: #fff; border-color: #dc3545; }
+
+/* "View List" button in the Employee column */
+.mct-viewlist {
+    border: 1px solid var(--teal, #2ab3bf);
+    background: #fff;
+    color: var(--teal-dk, #1e8f99);
+    font-size: 12px; font-weight: 600;
+    padding: 3px 10px; border-radius: 6px;
+    transition: all .15s;
+}
+.mct-viewlist:hover { background: var(--teal, #2ab3bf); color: #fff; border-color: var(--teal, #2ab3bf); }
+
+/* Boolean badge in grid */
+.mct-bool {
+    display: inline-block; min-width: 34px;
+    font-size: 11px; font-weight: 700; border-radius: 20px; padding: 2px 8px;
+}
+.mct-bool.yes { background: #d1fae5; color: #065f46; }
+.mct-bool.no  { background: #f1f5f9; color: #64748b; }
+
+/* Employee modal table — no pagination, scrolls inside the modal body with a
+   sticky header so the column titles (and select-all box) stay visible. */
+#empModal .modal-body { max-height: 60vh; }
+#tblEmp tbody tr { cursor: pointer; }
+#tblEmp thead th {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    background: #e8edf7;
+}
+#empModal .emp-active-check { width: 16px; height: 16px; cursor: pointer; accent-color: var(--teal, #2ab3bf); }
+
+@media (max-width: 576px) {
+    .mct-page .imp-form-card { padding: 14px 12px; }
+}

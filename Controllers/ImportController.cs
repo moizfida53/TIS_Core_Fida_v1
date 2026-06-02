@@ -701,7 +701,10 @@ public class ImportController : Controller
             return names;
         }
 
-        // Access (.mde / .mdb) — OleDb is fine here (no 32/64-bit Excel driver issue).
+        // Access (.mde / .mdb) — OleDb (Jet) is Windows-only.
+        if (!OperatingSystem.IsWindows())
+            throw new PlatformNotSupportedException("Access (.mde/.mdb) imports require Windows (OLE DB Jet provider).");
+
         OleDbConnection? conn = null;
         try
         {
@@ -729,7 +732,10 @@ public class ImportController : Controller
                 .ToList();
         }
 
-        // Access .mde fallback
+        // Access .mde fallback — OleDb (Jet) is Windows-only.
+        if (!OperatingSystem.IsWindows())
+            throw new PlatformNotSupportedException("Access (.mde/.mdb) imports require Windows (OLE DB Jet provider).");
+
         using var conn = new OleDbConnection($"Provider=Microsoft.Jet.OLEDB.4.0;Data Source={path};");
         var ds = new DataSet();
         conn.Open();
@@ -768,6 +774,9 @@ public class ImportController : Controller
     /// <summary>OleDb read for an Access .mde / .mdb table.</summary>
     private static DataTable ReadAccessSheet(string filePath, string tableName)
     {
+        if (!OperatingSystem.IsWindows())
+            throw new PlatformNotSupportedException("Access (.mde/.mdb) imports require Windows (OLE DB Jet provider).");
+
         var dt = new DataTable();
         using var conn = new OleDbConnection(
             $"Provider=Microsoft.Jet.OLEDB.4.0;data source={filePath};User Id=admin;Password=;");

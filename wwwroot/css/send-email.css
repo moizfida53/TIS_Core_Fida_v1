@@ -1,0 +1,64 @@
+/* ============================================================================
+   send-email.css — styles for Views/SendEmail/SendEmail.cshtml
+   Reuses the shared tel-* grid + teal modal chrome (same look as
+   ManageEmployee / ManageProvider) so the page matches the rest of the app.
+   ============================================================================ */
+
+.se-page { padding: 4px 0 16px; }
+
+/* Themed grid wrapper */
+.se-page .tel-grid-wrap { background: #fff; border: 1px solid var(--bd, #e5e7eb); border-radius: 10px; padding: 12px; }
+.se-page .tel-grid-wrap table.dataTable thead th { background: #e8edf7; color: #1a3a6e; font-size: 13px; font-weight: 600; }
+
+.se-page .tel-toolbar { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 12px; flex-wrap: wrap; }
+.se-page .tel-search { display: flex; align-items: center; gap: 7px; background: #f8fafc; border: 1px solid #e5e7eb; border-radius: 7px; padding: 6px 12px; min-width: 240px; transition: all .15s; }
+.se-page .tel-search:focus-within { border-color: var(--teal, #2ab3bf); background: #fff; box-shadow: 0 0 0 3px rgba(42, 179, 191, .15); }
+.se-page .tel-search svg   { width: 14px; height: 14px; opacity: .55; flex-shrink: 0; }
+.se-page .tel-search input { border: 0; background: transparent; outline: none; font-size: 12.5px; color: var(--tx, #0f172a); width: 100%; padding: 0; }
+.se-page .tel-search input::placeholder { color: var(--tx3, #64748b); }
+
+/* Keep long body text from blowing out the grid */
+.se-page #tblSendEmail td.se-clip {
+    max-width: 280px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+
+/* Sent status pill */
+.se-bool { display: inline-block; min-width: 34px; font-size: 11px; font-weight: 700; border-radius: 20px; padding: 2px 8px; text-align: center; }
+.se-bool.yes { background: #d1fae5; color: #065f46; }
+.se-bool.no  { background: #f1f5f9; color: #64748b; }
+
+/* Row edit button */
+.se-page .se-edit-btn { border: 0; background: transparent; color: var(--teal-dk, #1e8f99); cursor: pointer; padding: 4px 6px; border-radius: 6px; }
+.se-page .se-edit-btn:hover { background: rgba(42, 179, 191, .12); }
+
+/* ── Modal — teal theme (same as Manage Employee) ─────────────────────────── */
+.tel-modal .modal-content { border: 0; border-radius: 14px; overflow: hidden; box-shadow: 0 25px 70px rgba(15, 23, 42, .22); }
+.tel-modal-hdr {
+    background: var(--teal, #2ab3bf);
+    color: #fff; border: 0;
+    display: flex; align-items: center; gap: 16px;
+}
+.tel-modal-icon  { width: 46px; height: 46px; border-radius: 12px; background: rgba(255,255,255,.18); display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; box-shadow: inset 0 1px 0 rgba(255,255,255,.22); }
+.tel-modal-title { font-size: 19px; font-weight: 700; letter-spacing: .3px; line-height: 1.2; }
+.tel-modal .btn-close { filter: invert(1) grayscale(1) brightness(2); opacity: .9; margin: 0; }
+.tel-modal .modal-body    { padding: 24px 28px; }
+.tel-modal .modal-footer  { padding: 16px 24px; background: #f8fafc; }
+.tel-modal .modal-footer .btn { font-size: 14px; padding: 8px 18px; }
+
+.tel-modal .tel-lbl {
+    font-size: 13.5px; font-weight: 600; color: var(--tx2, #334155);
+    margin-bottom: 8px; letter-spacing: .2px;
+}
+.tel-modal .tel-lbl .fa { color: var(--teal-dk, #1e8f99); margin-right: 4px; }
+.tel-modal .tel-input {
+    font-size: 15px; padding: 10px 14px; height: auto;
+    border: 1.5px solid #e2e8f0; border-radius: 8px;
+    background: #fff;
+    transition: border-color .15s, box-shadow .15s;
+}
+.tel-modal .tel-input:focus { outline: none; border-color: var(--teal, #2ab3bf); box-shadow: 0 0 0 3px rgba(42, 179, 191, .18); }
+.tel-modal textarea.tel-input { resize: vertical; min-height: 160px; font-family: inherit; }
+
+/* Read-only context fields in the edit modal */
+.se-readonly { font-size: 13px; color: var(--tx2, #334155); }
+.se-readonly .se-label { font-weight: 600; color: var(--tx3, #64748b); }

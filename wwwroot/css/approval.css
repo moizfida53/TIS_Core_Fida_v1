@@ -622,6 +622,19 @@
     }
 
 
+/* Base size for the section icons — applies on ALL viewports (incl. mobile,
+   where the rail media query below does not run, so without this the SVGs
+   scale up to fill the row). */
+.sidebar .sb-section-icon {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+
 /* ════════════════════════════════════════════════════════════════════════
    HOVER-EXPAND RAIL SIDEBAR  (desktop ≥769px only)
    ------------------------------------------------------------------------

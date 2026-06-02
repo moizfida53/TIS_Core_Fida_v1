@@ -1,0 +1,86 @@
+@{
+    ViewBag.Title = "AD Connection Test";
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AD Connection Test</title>
+    <link rel="stylesheet" href="~/css/adtest-page.css" asp-append-version="true" />
+</head>
+<body>
+
+    <div class="page-header">
+        <div class="icon">
+            <svg viewBox="0 0 24 24">
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z" />
+            </svg>
+        </div>
+        <div>
+            <h1>Active Directory Test</h1>
+            <p>Diagnose AD connection · user lookup · attribute updates &mdash; uses IIS App Pool identity, no stored password</p>
+        </div>
+    </div>
+
+    <div class="config-hint">
+        <strong>&#9881;&#65039; Configured in appsettings.json &rarr; "ActiveDirectory"</strong>
+        <code>Domain</code> &nbsp;&middot;&nbsp;
+        <code>LdapPath</code> &nbsp;&middot;&nbsp;
+        <code>Attributes:DisplayName</code> &nbsp;&middot;&nbsp;
+        <code>Attributes:Email</code> &nbsp;&middot;&nbsp;
+        <code>Attributes:Department</code> &nbsp;&middot;&nbsp;
+        <code>Attributes:Title</code> &nbsp;&middot;&nbsp;
+        <code>Attributes:EmployeeNumber</code> &nbsp;&middot;&nbsp;
+        <code>Attributes:Mobile</code>
+    </div>
+
+    <!-- 1. Test Connection -->
+    <div class="card">
+        <div class="card-title">1 &middot; Test Connection</div>
+        <div class="row">
+            <button id="btn-test" data-url="@Url.Action("TestConnection", "ADTest")">
+                <span id="conn-spinner" class="spinner"></span>
+                Test AD Connection
+            </button>
+        </div>
+        <div id="conn-status" class="status-bar">
+            <span class="dot"></span>
+            <div class="status-detail"><span id="conn-msg"></span></div>
+        </div>
+    </div>
+
+    <!-- 2. Search User -->
+    <div class="card">
+        <div class="card-title">2 &middot; Search User</div>
+        <div class="row">
+            <input type="text" id="username-input" placeholder="SAM account name (e.g. jsmith)" />
+            <button id="btn-search" data-url="@Url.Action("SearchUser", "ADTest")">
+                <span id="search-spinner" class="spinner"></span>
+                Search User
+            </button>
+        </div>
+        <div id="result-box"></div>
+    </div>
+
+    <!-- 3. Update Mobile -->
+    <div class="card">
+        <div class="card-title">3 &middot; Update Mobile Number</div>
+        <div class="row">
+            <input type="text" id="mobile-username-input" placeholder="SAM account name" />
+            <input type="text" id="mobile-number-input" placeholder="Mobile number" />
+            <button id="btn-update-mobile" data-url="@Url.Action("UpdateMobile", "ADTest")">
+                <span id="update-spinner" class="spinner"></span>
+                Update Mobile
+            </button>
+        </div>
+        <div id="mobile-status" class="status-bar">
+            <span class="dot"></span>
+            <div class="status-detail"><span id="mobile-msg"></span></div>
+        </div>
+    </div>
+
+    <script src="~/js/adtest.js" asp-append-version="true"></script>
+</body>
+</html>

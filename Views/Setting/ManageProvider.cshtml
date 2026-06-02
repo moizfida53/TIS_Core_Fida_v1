@@ -1,0 +1,64 @@
+@{
+    ViewData["Title"] = "Manage Provider";
+    Layout = "_Layout";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/manage-provider.css" asp-append-version="true" />
+}
+
+<div class="prv-page" id="view-manage-provider">
+
+    <div class="imp-form-card">
+        <input type="hidden" id="hidID" />
+        <div class="row g-3 align-items-end">
+            <div class="col-md-4">
+                <label class="tel-lbl"><i class="fa fa-building me-1"></i>Provider Name</label>
+                <input id="txtProvider" type="text" class="form-control tel-input" autocomplete="off" />
+            </div>
+            <div class="col-md-3">
+                <div class="form-check prv-voip">
+                    <input class="form-check-input" type="checkbox" id="chkVoip">
+                    <label class="form-check-label" for="chkVoip">Is VoIP</label>
+                </div>
+            </div>
+            <div class="col-md-5">
+                <div class="d-flex gap-2 flex-wrap justify-content-md-end">
+                    <button type="button" id="btnAdd"    class="btn btn-primary"><i class="fa fa-plus me-1"></i>Add</button>
+                    <button type="button" id="btnUpdate" class="btn btn-warning" style="display:none"><i class="fa fa-pen me-1"></i>Update</button>
+                    <button type="button" id="btnDelete" class="btn btn-danger"  style="display:none"><i class="fa fa-trash me-1"></i>Delete</button>
+                    <button type="button" id="btnCancel" class="btn btn-secondary"><i class="fa fa-times me-1"></i>Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="tel-grid-wrap">
+        <div class="tel-toolbar">
+            <span class="fw-semibold" style="font-size:14px;color:var(--tx2,#334155)">
+                <i class="fa fa-list me-1" style="color:var(--teal,#2ab3bf)"></i>Providers
+            </span>
+            <div class="tel-search">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+                </svg>
+                <input id="txtSearchProvider" type="text" placeholder="Search providers…" autocomplete="off" />
+            </div>
+        </div>
+        <table id="tblProvider" class="table table-hover align-middle w-100">
+            <thead>
+                <tr>
+                    <th style="width:80px">ID</th>
+                    <th>Name</th>
+                    <th class="text-center" style="width:110px">Country Id</th>
+                    <th class="text-center" style="width:90px">Is VoIP</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/ManageProvider.js" asp-append-version="true"></script>
+}

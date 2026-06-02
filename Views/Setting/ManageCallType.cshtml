@@ -1,0 +1,216 @@
+@{
+    ViewData["Title"] = "Manage Policy";
+    Layout = "_Layout";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/manage-call-type.css" asp-append-version="true" />
+}
+
+<div class="mct-page" id="view-manage-policy">
+
+    <!-- Toolbar: Add Policy · Apply · search -->
+    <div class="tel-toolbar">
+        <div class="d-flex gap-2 align-items-center flex-wrap">
+            <button type="button" id="btnNewPolicy" class="btn btn-primary btn-sm px-3"
+                    data-bs-toggle="modal" data-bs-target="#policyModal" onclick="window._mctNew()">
+                <i class="fa fa-plus me-1"></i>Add Policy
+            </button>
+            <button type="button" id="btnApply" class="btn btn-success btn-sm px-3">
+                <i class="fa fa-check me-1"></i>Apply Policies
+            </button>
+        </div>
+        <div class="tel-search">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+            </svg>
+            <input id="txtSearchPolicy" type="text" placeholder="Search policies…" autocomplete="off" />
+        </div>
+    </div>
+
+    <!-- Policy grid -->
+    <div class="tel-grid-wrap">
+        <table id="tblPolicy" class="table table-hover align-middle w-100">
+            <thead>
+                <tr>
+                    <th>Provider</th>
+                    <th>Trans Type</th>
+                    <th>Description</th>
+                    <th>Call Type</th>
+                    <th>Line Type</th>
+                    <th class="text-center">Employee</th>
+                    <th class="text-center">Super Impose</th>
+                    <th class="text-center" style="width:60px">Edit</th>
+                    <th class="text-center" style="width:60px">Delete</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════════════
+     POLICY MODAL  (was the inline imp-form-card)
+     ══════════════════════════════════════════════════════════════════════════ -->
+<div class="modal fade tel-modal" id="policyModal" tabindex="-1" aria-hidden="true"
+     data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+
+            <div class="modal-header tel-modal-hdr">
+                <div class="tel-modal-icon"><i class="fa fa-shield-halved"></i></div>
+                <div class="flex-grow-1"><div class="tel-modal-title" id="policyModalTitle">Add Policy</div></div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <div class="modal-body">
+                <input type="hidden" id="hidID" />
+
+                <!-- Row 1: Provider · Trans Type · Description · All Description -->
+                <div class="row g-3 mb-3 align-items-end">
+                    <div class="col-xl-3 col-md-6">
+                        <label class="tel-lbl"><i class="fa fa-building me-1"></i>Provider</label>
+                        <select id="cmbProvider" class="form-select tel-input">
+                            <option value="">Select Provider</option>
+                        </select>
+                    </div>
+                    <div class="col-xl-3 col-md-6">
+                        <label class="tel-lbl"><i class="fa fa-list me-1"></i>Trans Type</label>
+                        <select id="cmbTransType" class="form-select tel-input">
+                            <option value="">Select Trans Type</option>
+                        </select>
+                    </div>
+                    <div class="col-xl-3 col-md-6">
+                        <label class="tel-lbl"><i class="fa fa-tag me-1"></i>Description</label>
+                        <select id="cmbDesc" class="form-select tel-input" multiple size="4"></select>
+                    </div>
+                    <div class="col-xl-3 col-md-6">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="chkAllDesc">
+                            <label class="form-check-label" for="chkAllDesc">All Description</label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Row 2: Line Type · Call Type · Employee · flags -->
+                <div class="row g-3 align-items-end">
+                    <div class="col-xl-3 col-md-6">
+                        <label class="tel-lbl"><i class="fa fa-network-wired me-1"></i>Line Type</label>
+                        <select id="cmbLineType" class="form-select tel-input">
+                            <option value="">Select Line Type</option>
+                        </select>
+                    </div>
+                    <div class="col-xl-3 col-md-6">
+                        <label class="tel-lbl"><i class="fa fa-phone-volume me-1"></i>Call Type</label>
+                        <select id="cmbCallType" class="form-select tel-input">
+                            <option value="">Select Call Type</option>
+                        </select>
+                    </div>
+                    <div class="col-xl-3 col-md-6">
+                        <label class="tel-lbl"><i class="fa fa-users me-1"></i>Employee</label>
+                        <button type="button" id="btnEmployee" class="btn btn-outline-secondary w-100 mct-emp-btn">
+                            <i class="fa fa-user-plus me-1"></i><span id="empBtnLabel">Select Employees</span>
+                        </button>
+                    </div>
+                    <div class="col-xl-3 col-md-6">
+                        <div class="d-flex align-items-center gap-3 mct-flags">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="chkAllEmp">
+                                <label class="form-check-label mb-0" for="chkAllEmp">All Employee</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="chkSupImp">
+                                <label class="form-check-label mb-0" for="chkSupImp">Super Impose</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div><!-- /modal-body -->
+
+            <div class="modal-footer">
+                <button type="button" id="btnCancel" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fa fa-times me-1"></i>Cancel
+                </button>
+                <button type="button" id="btnAdd" class="btn btn-primary"><i class="fa fa-plus me-1"></i>Add</button>
+                <button type="button" id="btnUpdate" class="btn btn-warning" style="display:none"><i class="fa fa-pen me-1"></i>Update</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════════════
+     EMPLOYEE PICKER MODAL  (replaces the legacy jqxWindow + jqxGrid)
+     ══════════════════════════════════════════════════════════════════════════ -->
+<div class="modal fade tel-modal" id="empModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header tel-modal-hdr">
+                <div class="tel-modal-icon"><i class="fa fa-users"></i></div>
+                <div class="flex-grow-1"><div class="tel-modal-title">Select Employees</div></div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="tel-search mb-2 w-100">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+                    </svg>
+                    <input id="txtSearchEmp" type="text" placeholder="Search name, number or org…" autocomplete="off" />
+                </div>
+                <table id="tblEmp" class="table table-hover align-middle w-100">
+                    <thead>
+                        <tr>
+                            <th style="width:42px" class="text-center">
+                                <input type="checkbox" id="chkEmpAllRows" class="emp-active-check" />
+                            </th>
+                            <th>Employee</th>
+                            <th>Sub No</th>
+                            <th>Org</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <span id="empSelCount" class="me-auto text-muted" style="font-size:13px">0 selected</span>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><i class="fa fa-times me-1"></i>Cancel</button>
+                <button type="button" id="btnEmpDone" class="btn btn-primary" data-bs-dismiss="modal"><i class="fa fa-check me-1"></i>Done</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════════════
+     POLICY EMPLOYEE LIST MODAL  ("View List" — employees associated to a policy)
+     ══════════════════════════════════════════════════════════════════════════ -->
+<div class="modal fade tel-modal" id="empListModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header tel-modal-hdr">
+                <div class="tel-modal-icon"><i class="fa fa-users"></i></div>
+                <div class="flex-grow-1"><div class="tel-modal-title">Policy Employees</div></div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <table id="tblEmpList" class="table table-hover align-middle w-100">
+                    <thead>
+                        <tr>
+                            <th>Employee Name</th>
+                            <th>Employee No</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+                <div id="empListEmpty" class="text-center text-muted py-3" style="display:none">
+                    No employees associated with this policy.
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><i class="fa fa-times me-1"></i>Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/ManageCallType.js" asp-append-version="true"></script>
+}

@@ -17,6 +17,9 @@ public class SendEmail
     [Display(Name = "Bill ID")]
     public int BillId { get; init; }
 
+    [Display(Name = "Bill Date")]
+    public string? BillDate { get; init; }
+
     [Display(Name = "Bill IDs (Batch)")]
     public int[]? Bid { get; init; }
 

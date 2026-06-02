@@ -1,0 +1,171 @@
+// ============================================================================
+// pages/_force-bill.scss
+// Styles for the Force Bill admin page.
+//
+// Sections:
+//  1. Page header action bar
+//  2. DataTable tweaks
+//  3. Checkbox column
+//  4. Modal overrides
+//  5. Processing spinner overlay
+//  6. Responsive
+// ============================================================================
+
+// ── 1. Page header action bar ─────────────────────────────────────────────────
+
+.force-bill-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: $radius-md;
+  margin-bottom: 16px;
+}
+
+// ── 2. DataTable tweaks ───────────────────────────────────────────────────────
+
+#tblForceBill {
+  thead th {
+    background: $brand-navy;
+    color: $color-surface;
+    font-size: 12px;
+    white-space: nowrap;
+    vertical-align: middle;
+  }
+
+  tbody tr {
+    transition: background 0.12s;
+
+    &:hover { background: $color-info-light; }
+  }
+
+  tbody td {
+    vertical-align: middle;
+    font-size: 13px;
+  }
+}
+
+// ── 3. Checkbox column ────────────────────────────────────────────────────────
+
+#chkSelectAll,
+#tblForceBill .row-chk {
+  cursor: pointer;
+  width: 16px;
+  height: 16px;
+  accent-color: $brand-blue;
+}
+
+// ── 4. Modal overrides ────────────────────────────────────────────────────────
+
+#modalForceBill {
+  .modal-header {
+    background: $brand-navy;
+    color: $color-surface;
+    border-bottom: none;
+    border-radius: $radius-lg $radius-lg 0 0;
+  }
+
+  .modal-content {
+    border: none;
+    border-radius: $radius-lg;
+    box-shadow: $shadow-lg;
+  }
+
+  .modal-footer {
+    border-top: 1px solid $color-border;
+  }
+
+  // Section labels inside modal body
+  .text-uppercase.small {
+    letter-spacing: 0.6px;
+    color: $color-text-muted;
+  }
+}
+
+// ── 5. Processing spinner overlay ─────────────────────────────────────────────
+
+.force-bill-spinner-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: rgba(0, 0, 0, 0.65);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &.d-none { display: none !important; }
+}
+
+.force-bill-spinner-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: rgba(0, 0, 0, 0.85);
+  padding: 32px 48px;
+  border-radius: $radius-xl;
+
+  p { font-size: 16px; font-weight: 600; }
+}
+
+// ── 6. Responsive ─────────────────────────────────────────────────────────────
+
+@include respond-below(md) {
+  // Card-stack layout for the DataTable on xs
+  #tblForceBill {
+    thead tr { display: none; }
+
+    tbody tr {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      border: 1px solid $color-border;
+      border-radius: $radius-xl;
+      margin-bottom: 12px;
+      padding: 12px;
+      background: $color-surface;
+      box-shadow: $shadow-sm;
+    }
+
+    tbody td {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border: none !important;
+      padding: 4px 2px !important;
+      font-size: 13px;
+      border-bottom: 1px dashed $color-border-light !important;
+
+      &:first-child {
+        // Checkbox cell — left-align
+        justify-content: flex-start;
+        border-bottom: none !important;
+      }
+
+      &:last-child { border-bottom: none !important; }
+
+      &::before {
+        content: attr(data-label);
+        font-weight: 600;
+        color: $color-text-muted;
+        text-align: left;
+        margin-right: 12px;
+        flex-shrink: 0;
+        font-size: 11px;
+        text-transform: uppercase;
+      }
+
+      &:first-child::before { display: none; }
+    }
+  }
+
+  .force-bill-spinner-box {
+    padding: 24px 28px;
+    p { font-size: 14px; }
+  }
+}
+
+@media (max-width: 375px) {
+  #modalForceBill .modal-body .d-flex.flex-wrap {
+    flex-direction: column;
+  }
+}

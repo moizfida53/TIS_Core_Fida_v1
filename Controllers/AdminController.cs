@@ -84,6 +84,59 @@ public class AdminController : Controller
         }
     }
 
+    // ── Active Directory lookup (AD button on the Add Employee modal) ──────────
+    // Pulls Employee Name, Department, Title, Employee Number, Email and Mobile
+    // from AD by username. Attribute names + domain are configurable in
+    // appsettings.json → ActiveDirectory.
+    [HttpGet]
+    [System.Runtime.Versioning.SupportedOSPlatform("windows")]
+    public IActionResult AdLookup(string username, [FromServices] AdLookupService ad)
+    {
+        if (string.IsNullOrWhiteSpace(username))
+        {
+            AuditTrail("AdLookup", "AD search attempted with an empty username.");
+            return Json(new { success = false, message = "Please enter a Username." });
+        }
+
+        if (!ad.IsConfigured)
+        {
+            AuditTrail("AdLookup", "AD search failed — ActiveDirectory:Domain is not configured in appsettings.json.");
+            return Json(new { success = false, message = "Active Directory is not configured. Set the 'ActiveDirectory:Domain' key in appsettings.json." });
+        }
+
+        try
+        {
+            var user = ad.FindByUsername(username);
+            if (user is null)
+            {
+                AuditTrail("AdLookup", $"AD search returned no user for '{username}'.");
+                return Json(new { success = false, message = $"No AD user found for '{username}'." });
+            }
+
+            return Json(new
+            {
+                success = true,
+                message = "User found.",
+                data = new
+                {
+                    displayName    = user.DisplayName,
+                    department     = user.Department,
+                    title          = user.Title,
+                    employeeNumber = user.EmployeeNumber,
+                    email          = user.Email,
+                    mobile         = user.Mobile,
+                    samAccount     = user.SamAccount
+                }
+            });
+        }
+        catch (Exception ex)
+        {
+            AuditTrail("AdLookup", $"AD search failed for '{username}': {ex}");
+            LogAuditFail("AdLookup", ex);
+            return Json(new { success = false, message = $"AD lookup failed: {ex.Message}" });
+        }
+    }
+
     [HttpPost]
     public IActionResult AddEmployee([FromBody] EmployeeRequest request)
     {
@@ -1032,6 +1085,26 @@ public class AdminController : Controller
 
     private string CurrentUid()
         => HttpContext.Session.GetString("EmpUID") ?? "0";
+
+    // Logs an error to tblAuditTrail via sp_CreateException (same sink the
+    // ImportController uses). @Uid is the current user; severity defaults high.
+    private void AuditTrail(string eventName, string message)
+    {
+        try
+        {
+            int.TryParse(CurrentUid(), out int uid);
+            SqlParameter[] p =
+            [
+                new SqlParameter("@Uid",           SqlDbType.Int)      { Value = uid },
+                new SqlParameter("@EventName",     SqlDbType.NVarChar) { Value = eventName },
+                new SqlParameter("@EventType",     SqlDbType.NVarChar) { Value = "Fail" },
+                new SqlParameter("@EventMsg",      SqlDbType.NVarChar) { Value = (object?)message ?? DBNull.Value },
+                new SqlParameter("@EventSeverity", SqlDbType.NVarChar) { Value = "severity_high" }
+            ];
+            _db.ExecuteStoredProcDataSet("sp_CreateException", p);
+        }
+        catch { /* never let audit logging break the request */ }
+    }
 
     private void LogAuditFail(string action, Exception ex)
     {

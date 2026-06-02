@@ -1,0 +1,40 @@
+/* ============================================================================
+   manage-provider.css — styles for Views/Setting/ManageProvider.cshtml
+   Reuses the shared imp-form-card / tel-* / grid chrome.
+   ============================================================================ */
+
+.prv-page { padding: 4px 0 16px; }
+
+.prv-page .imp-form-card {
+    background: #fff;
+    border: 1px solid var(--bd, #e5e7eb);
+    border-radius: 10px;
+    padding: 18px 22px;
+    margin-bottom: 16px;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, .05);
+}
+
+.prv-page .tel-lbl { font-size: 13px; font-weight: 600; color: var(--tx2, #334155); margin-bottom: 6px; }
+.prv-page .tel-lbl .fa { color: var(--teal-dk, #1e8f99); }
+.prv-page .tel-input { border: 1.5px solid #e2e8f0; border-radius: 8px; transition: border-color .15s, box-shadow .15s; }
+.prv-page .tel-input:focus { outline: none; border-color: var(--teal, #2ab3bf); box-shadow: 0 0 0 3px rgba(42, 179, 191, .18); }
+
+.prv-voip { height: 40px; display: flex; align-items: center; gap: 6px; padding-left: 32px; }
+.prv-voip .form-check-input { cursor: pointer; accent-color: var(--teal, #2ab3bf); width: 18px; height: 18px; }
+.prv-voip .form-check-input:checked { background-color: var(--teal, #2ab3bf); border-color: var(--teal, #2ab3bf); }
+.prv-voip .form-check-label { font-size: 13px; color: var(--tx2, #334155); cursor: pointer; }
+
+.prv-page .tel-grid-wrap { background: #fff; border: 1px solid var(--bd, #e5e7eb); border-radius: 10px; padding: 12px; }
+.prv-page .tel-grid-wrap table.dataTable thead th { background: #e8edf7; color: #1a3a6e; font-size: 13px; font-weight: 600; }
+.prv-page .tel-toolbar { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 12px; flex-wrap: wrap; }
+.prv-page .tel-search { display: flex; align-items: center; gap: 7px; background: #f8fafc; border: 1px solid #e5e7eb; border-radius: 7px; padding: 6px 12px; min-width: 240px; transition: all .15s; }
+.prv-page .tel-search:focus-within { border-color: var(--teal, #2ab3bf); background: #fff; box-shadow: 0 0 0 3px rgba(42, 179, 191, .15); }
+.prv-page .tel-search svg   { width: 14px; height: 14px; opacity: .55; flex-shrink: 0; }
+.prv-page .tel-search input { border: 0; background: transparent; outline: none; font-size: 12.5px; color: var(--tx, #0f172a); width: 100%; padding: 0; }
+
+#tblProvider tbody tr { cursor: pointer; }
+#tblProvider tbody tr.prv-selected td { background: rgba(42, 179, 191, .12) !important; }
+
+.prv-bool { display: inline-block; min-width: 34px; font-size: 11px; font-weight: 700; border-radius: 20px; padding: 2px 8px; }
+.prv-bool.yes { background: #d1fae5; color: #065f46; }
+.prv-bool.no  { background: #f1f5f9; color: #64748b; }

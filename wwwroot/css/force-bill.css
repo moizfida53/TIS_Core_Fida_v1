@@ -1,0 +1,59 @@
+/* ============================================================================
+   force-bill.css — styles for Views/Bill/ForceBill.cshtml
+   Reuses the shared imp-form-card / tel-* / grid chrome (same look as
+   ManageProvider / AddTelephone) so the Force Bill grid matches other pages.
+   ============================================================================ */
+
+.fb-page { padding: 4px 0 16px; }
+
+/* Themed grid wrapper — white card, light header, custom toolbar + search */
+.fb-page .tel-grid-wrap { background: #fff; border: 1px solid var(--bd, #e5e7eb); border-radius: 10px; padding: 12px; }
+.fb-page .tel-grid-wrap table.dataTable thead th { background: #e8edf7; color: #1a3a6e; font-size: 13px; font-weight: 600; }
+
+.fb-page .tel-toolbar { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 12px; flex-wrap: wrap; }
+.fb-page .tel-search { display: flex; align-items: center; gap: 7px; background: #f8fafc; border: 1px solid #e5e7eb; border-radius: 7px; padding: 6px 12px; min-width: 240px; transition: all .15s; }
+.fb-page .tel-search:focus-within { border-color: var(--teal, #2ab3bf); background: #fff; box-shadow: 0 0 0 3px rgba(42, 179, 191, .15); }
+.fb-page .tel-search svg   { width: 14px; height: 14px; opacity: .55; flex-shrink: 0; }
+.fb-page .tel-search input { border: 0; background: transparent; outline: none; font-size: 12.5px; color: var(--tx, #0f172a); width: 100%; padding: 0; }
+.fb-page .tel-search input::placeholder { color: var(--tx3, #64748b); }
+
+/* Toolbar action buttons (left side, next to search) */
+.fb-page .tel-toolbar .btn-add-tel { background: var(--teal, #2ab3bf); border: 0; color: #fff; }
+.fb-page .tel-toolbar .btn-add-tel:hover { background: var(--teal-dk, #1e8f99); color: #fff; }
+
+/* ── Modal — teal theme (same as Manage Employee) ─────────────────────────── */
+.tel-modal .modal-content { border: 0; border-radius: 14px; overflow: hidden; box-shadow: 0 25px 70px rgba(15, 23, 42, .22); }
+.tel-modal-hdr {
+    background: var(--teal, #2ab3bf);
+    color: #fff; border: 0;
+    display: flex; align-items: center; gap: 16px;
+}
+.tel-modal-icon  { width: 46px; height: 46px; border-radius: 12px; background: rgba(255,255,255,.18); display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; box-shadow: inset 0 1px 0 rgba(255,255,255,.22); }
+.tel-modal-title { font-size: 19px; font-weight: 700; letter-spacing: .3px; line-height: 1.2; }
+.tel-modal .btn-close { filter: invert(1) grayscale(1) brightness(2); opacity: .9; margin: 0; }
+.tel-modal .modal-body    { padding: 24px 28px; }
+.tel-modal .modal-footer  { padding: 16px 24px; background: #f8fafc; }
+.tel-modal .modal-footer .btn { font-size: 14px; padding: 8px 18px; }
+
+.tel-modal .tel-lbl {
+    font-size: 13.5px; font-weight: 600; color: var(--tx2, #334155);
+    margin-bottom: 8px; letter-spacing: .2px;
+}
+.tel-modal .tel-lbl .fa { color: var(--teal-dk, #1e8f99); margin-right: 4px; }
+.tel-modal .tel-input {
+    font-size: 15px; padding: 10px 14px; height: auto;
+    border: 1.5px solid #e2e8f0; border-radius: 8px;
+    background: #fff;
+    transition: border-color .15s, box-shadow .15s;
+}
+.tel-modal .tel-input:focus { outline: none; border-color: var(--teal, #2ab3bf); box-shadow: 0 0 0 3px rgba(42, 179, 191, .18); }
+.tel-modal select.tel-input { padding-right: 36px; }
+.tel-modal .form-check-input:checked { background-color: var(--teal, #2ab3bf); border-color: var(--teal, #2ab3bf); }
+
+/* Processing overlay shown while the Force Bill action runs */
+.force-bill-spinner-overlay {
+    position: fixed; inset: 0; z-index: 1080;
+    display: flex; align-items: center; justify-content: center;
+    background: rgba(15, 23, 42, .55);
+}
+.force-bill-spinner-box { text-align: center; }
