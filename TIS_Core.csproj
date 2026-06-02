@@ -13,9 +13,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Bills\**" />
     <Compile Remove="SQL\**" />
+    <Content Remove="Bills\**" />
     <Content Remove="SQL\**" />
+    <EmbeddedResource Remove="Bills\**" />
     <EmbeddedResource Remove="SQL\**" />
+    <None Remove="Bills\**" />
     <None Remove="SQL\**" />
   </ItemGroup>
 
