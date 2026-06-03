@@ -556,9 +556,13 @@
         $btn.prop('disabled', true).html('<i class="fa fa-spinner fa-spin me-1"></i>Syncing…');
         $('#adSyncLoader').css('display', 'flex');
         $.ajax({
-            type: 'GET', url: '/SyncBapi/SyncBapiProd',
+            type: 'GET', url: '/ActiveDirectorySync/SyncActiveStatus',
             success: function (res) {
-                Swal.fire({ icon: 'success', title: 'Sync Complete', text: (res && res.Message) ? res.Message : 'AD Sync completed.' });
+                if (res && res.success === false) {
+                    Swal.fire({ icon: 'error', title: 'Sync Failed', text: res.message || 'AD sync failed.' });
+                    return;
+                }
+                Swal.fire({ icon: 'success', title: 'Sync Complete', text: (res && res.message) ? res.message : 'AD Sync completed.' });
                 loadAll();
             },
             error: function (xhr) {

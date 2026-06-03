@@ -120,6 +120,27 @@ public class AdLookupService
         };
     }
 
+    /// <summary>
+    /// Returns the AD account status for a SAM account name.
+    ///   Found    — true if the username exists in AD.
+    ///   Disabled — true only when AD reports the account as explicitly disabled.
+    /// Throws on connection/permission errors so the caller can log them.
+    /// </summary>
+    public (bool Found, bool Disabled) GetAccountStatus(string username)
+    {
+        if (string.IsNullOrWhiteSpace(username))
+            return (false, false);
+
+        using var context = new PrincipalContext(ContextType.Domain, _opt.Domain);
+        using var user    = UserPrincipal.FindByIdentity(context, IdentityType.SamAccountName, username.Trim());
+        if (user == null)
+            return (false, false);
+
+        // UserPrincipal.Enabled is bool?; an explicit "false" means the AD account is disabled.
+        bool disabled = user.Enabled == false;
+        return (true, disabled);
+    }
+
     /// <summary>Safely reads a named attribute from a DirectoryEntry.</summary>
     private static string GetProperty(DirectoryEntry? entry, string attributeName)
     {

@@ -1524,8 +1524,150 @@ BEGIN
 END
 GO
 
+-- ============================================================================
+--  sp_ManageDelegate  (TIS.NET10)
+--  Manage bill-delegation records (tblSecrateryRole).
+--    @Command = 1  Add
+--    @Command = 2  Update
+--    @Command = 3  Delete
+--
+--  Hardening notes vs. the legacy proc:
+--   • The real data operation (INSERT/UPDATE/DELETE on tblSecrateryRole) now
+--     runs FIRST and is the source of truth.
+--   • Audit-trail writes to the vwTblUser_tblMaster / vwTBLDetails_TBLMaster
+--     views are wrapped in TRY…CATCH so a faulty audit trigger (e.g. the
+--     "converting varchar to bigint" issue) can never block a delegation
+--     change. Audit failures are swallowed intentionally.
+-- ============================================================================
+ALTER PROCEDURE [dbo].[sp_ManageDelegate]
+    @Command   int,
+    @ID        int = NULL,
+    @secid     int = NULL,
+    @managerid int = NULL,
+    @app       bit = NULL,
+    @idt       bit = NULL
+AS
+BEGIN
+    SET NOCOUNT ON;
 
+    ----------------------------------------------------------------------------
+    -- 1) ADD
+    ----------------------------------------------------------------------------
+    IF (@Command = 1)
+    BEGIN
+        INSERT INTO tblSecrateryRole ([SecrateryID], [ManagerID], [CanApprove], [CanIdentify])
+        VALUES (@secid, @managerid, @app, @idt);
 
+        DECLARE @NewId int = CAST(SCOPE_IDENTITY() AS int);
+
+        BEGIN TRY
+            INSERT INTO [vwTblUser_tblMaster] ([FORM_ID], [ACTION_NAME], [RESULT], [USERID])
+            VALUES (4, 'Add New Secratery', 'Success', @NewId);
+        END TRY
+        BEGIN CATCH
+            -- audit-trail failure must not break the delegation insert
+        END CATCH
+    END
+
+    ----------------------------------------------------------------------------
+    -- 2) UPDATE
+    ----------------------------------------------------------------------------
+    IF (@Command = 2)
+    BEGIN
+        UPDATE tblSecrateryRole
+           SET [SecrateryID] = @secid,
+               [ManagerID]   = @managerid,
+               [CanApprove]  = @app,
+               [CanIdentify] = @idt
+         WHERE ID = @ID;
+
+        BEGIN TRY
+            INSERT INTO [vwTblUser_tblMaster] ([FORM_ID], [ACTION_NAME], [RESULT], [USERID])
+            VALUES (4, 'Update Secratery', 'Success', @ID);
+        END TRY
+        BEGIN CATCH
+            -- audit-trail failure must not break the delegation update
+        END CATCH
+    END
+
+    ----------------------------------------------------------------------------
+    -- 3) DELETE
+    ----------------------------------------------------------------------------
+    IF (@Command = 3)
+    BEGIN
+        DECLARE @SecName varchar(200) =
+            (SELECT Name FROM tbluser
+              WHERE UID = (SELECT SecrateryID FROM tblSecrateryRole WHERE ID = @ID));
+
+        DELETE FROM tblSecrateryRole WHERE ID = @ID;
+
+        BEGIN TRY
+            INSERT INTO vwTblUser_tblMaster (FORM_ID, ACTION_NAME, RESULT, USERID)
+            VALUES (4, 'Delete Secratery', 'Success', @ID);
+
+            INSERT INTO vwTBLDetails_TBLMaster (SNO, AT_ID, NEW_VALUE, OLD_VALUE, FIELD_NAME)
+            VALUES (4,
+                    (SELECT ID FROM TBL_AT_MASTER
+                      WHERE date1 = (SELECT MAX(date1) FROM TBL_AT_MASTER)),
+                    '', @SecName, 'Delete Secratery');
+        END TRY
+        BEGIN CATCH
+            -- audit-trail failure must not break the delegation delete
+        END CATCH
+    END
+END
+GO
+
+-- ============================================================================
+--  TBLTRIGGER_tblSecrateryRole  (TIS.NET10)
+--  Audit trigger for tblSecrateryRole (bill delegation records).
+--
+--  Fixes vs. the legacy trigger:
+--   • Root cause of "converting varchar to bigint": the old trigger did
+--       '(Abc)' + (select SecrateryID ...)
+--     which adds a string to a bigint and forces a numeric conversion of
+--     '(Abc)'. All audit values are now CAST to varchar before being written
+--     to the (varchar) NEW_VALUE / OLD_VALUE columns.
+--   • Set-based (joins inserted↔deleted on ID) so multi-row updates work.
+--   • Logs CanIdentify (the legacy trigger logged CanApprove twice).
+--   • Dropped the stray '(Abc)' debug prefix.
+-- ============================================================================
+ALTER TRIGGER [dbo].[TBLTRIGGER_tblSecrateryRole]
+    ON [dbo].[tblSecrateryRole]
+    AFTER INSERT, UPDATE
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    -- Only log field-level changes for UPDATEs (rows in both inserted & deleted).
+    IF EXISTS (SELECT 1 FROM deleted)
+    BEGIN
+        -- SecrateryID
+        INSERT INTO TBL_AT_DETAILS (NEW_VALUE, OLD_VALUE)
+        SELECT CAST(i.SecrateryID AS varchar(50)), CAST(d.SecrateryID AS varchar(50))
+        FROM inserted i INNER JOIN deleted d ON i.ID = d.ID;
+
+        -- ManagerID
+        INSERT INTO TBL_AT_DETAILS (NEW_VALUE, OLD_VALUE)
+        SELECT CAST(i.ManagerID AS varchar(50)), CAST(d.ManagerID AS varchar(50))
+        FROM inserted i INNER JOIN deleted d ON i.ID = d.ID;
+
+        -- CanApprove
+        INSERT INTO TBL_AT_DETAILS (NEW_VALUE, OLD_VALUE)
+        SELECT CAST(i.CanApprove AS varchar(50)), CAST(d.CanApprove AS varchar(50))
+        FROM inserted i INNER JOIN deleted d ON i.ID = d.ID;
+
+        -- CanIdentify
+        INSERT INTO TBL_AT_DETAILS (NEW_VALUE, OLD_VALUE)
+        SELECT CAST(i.CanIdentify AS varchar(50)), CAST(d.CanIdentify AS varchar(50))
+        FROM inserted i INNER JOIN deleted d ON i.ID = d.ID;
+
+        -- Drop entries where nothing changed (same semantics as legacy trigger).
+        DELETE FROM TBL_AT_DETAILS WHERE NEW_VALUE = OLD_VALUE;
+        DELETE FROM TBL_AT_DETAILS WHERE NEW_VALUE IS NULL AND OLD_VALUE IS NULL;
+    END
+END
+GO
 
 PRINT 'All stored procedures created successfully.';
 GO
