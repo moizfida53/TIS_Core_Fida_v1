@@ -60,6 +60,17 @@ public class ActiveDirectorySyncController : Controller
             return Json(new { success = false, message = "Active Directory is not configured. Set 'ActiveDirectory:Domain' in appsettings.json." });
         }
 
+        // ── Verify AD connectivity FIRST ───────────────────────────────────────
+        // If a domain controller can't be reached, return immediately with a clear
+        // error instead of letting each per-user lookup hang (which left the UI
+        // loader spinning forever).
+        var (adOk, adMessage) = _ad.TestConnection();
+        if (!adOk)
+        {
+            LogAuditFail("ActiveDirectorySync", $"AD connection failed — sync aborted. {adMessage}");
+            return Json(new { success = false, message = "Could not connect to Active Directory. " + adMessage });
+        }
+
         int checkedCount = 0, disabledCount = 0, notFound = 0, errorCount = 0;
         var disabledUsers = new List<object>();
 
@@ -73,6 +84,7 @@ public class ActiveDirectorySyncController : Controller
             {
                 int uid       = Convert.ToInt32(row["UID"]);
                 string user   = row["username"]?.ToString() ?? string.Empty;
+                string name   = row.Table.Columns.Contains("NAME") ? row["NAME"]?.ToString() ?? string.Empty : string.Empty;
                 if (string.IsNullOrWhiteSpace(user)) continue;
 
                 checkedCount++;
@@ -93,7 +105,7 @@ public class ActiveDirectorySyncController : Controller
                         ]);
 
                         disabledCount++;
-                        disabledUsers.Add(new { uid, username = user });
+                        disabledUsers.Add(new { uid, username = user, name });
                     }
                 }
                 catch (Exception perUserEx)

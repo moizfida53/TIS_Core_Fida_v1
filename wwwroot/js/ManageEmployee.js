@@ -551,22 +551,52 @@
     // ─────────────────────────────────────────────────────────────────────────
     //  SYNC AD
     // ─────────────────────────────────────────────────────────────────────────
+    // Shows the post-sync popup listing employees marked inactive during the run.
+    // Only ever called from the Sync AD button (Task Scheduler hits the URL with
+    // no browser, so it never reaches this code — it just logs to the table).
+    function showAdSyncResult(res) {
+        var users = (res && res.disabledUsers) || [];
+        $('#adSyncSummary').text((res && res.message) || 'AD sync completed.');
+
+        var $body = $('#tblAdSyncResult tbody').empty();
+        if (!users.length) {
+            $('#adSyncResultWrap').addClass('d-none');
+            $('#adSyncNone').removeClass('d-none');
+        } else {
+            $('#adSyncResultWrap').removeClass('d-none');
+            $('#adSyncNone').addClass('d-none');
+            users.forEach(function (u) {
+                $body.append(
+                    $('<tr></tr>')
+                        .append($('<td></td>').text(u.uid != null ? u.uid : ''))
+                        .append($('<td></td>').text(u.name || ''))
+                        .append($('<td></td>').text(u.username || ''))
+                );
+            });
+        }
+        bootstrap.Modal.getOrCreateInstance(document.getElementById('adSyncResultModal')).show();
+    }
+
     function syncAD() {
         var $btn = $('#btnSyncAD');
         $btn.prop('disabled', true).html('<i class="fa fa-spinner fa-spin me-1"></i>Syncing…');
         $('#adSyncLoader').css('display', 'flex');
         $.ajax({
             type: 'GET', url: '/ActiveDirectorySync/SyncActiveStatus',
+            timeout: 120000, // 2 min cap so the loader can never hang indefinitely
             success: function (res) {
                 if (res && res.success === false) {
                     Swal.fire({ icon: 'error', title: 'Sync Failed', text: res.message || 'AD sync failed.' });
                     return;
                 }
-                Swal.fire({ icon: 'success', title: 'Sync Complete', text: (res && res.message) ? res.message : 'AD Sync completed.' });
+                showAdSyncResult(res);   // popup with the list of newly-inactivated employees
                 loadAll();
             },
-            error: function (xhr) {
-                Swal.fire({ icon: 'error', title: 'Sync Failed', text: xhr.responseText || 'Unknown error' });
+            error: function (xhr, status) {
+                var msg = status === 'timeout'
+                    ? 'The sync timed out. Active Directory may be unreachable. Please try again.'
+                    : (xhr.responseText || 'Unknown error');
+                Swal.fire({ icon: 'error', title: 'Sync Failed', text: msg });
             },
             complete: function () {
                 $('#adSyncLoader').hide();

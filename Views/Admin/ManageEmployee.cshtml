@@ -361,6 +361,53 @@
     </div>
 </div>
 
+<!-- ══════════════════════════════════════════════════════════════════════════
+     AD SYNC RESULT MODAL  (employees marked inactive during the sync)
+     ══════════════════════════════════════════════════════════════════════════ -->
+<div class="modal fade tel-modal" id="adSyncResultModal" tabindex="-1" aria-hidden="true"
+     data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+
+            <div class="modal-header tel-modal-hdr">
+                <div class="tel-modal-icon"><i class="fa fa-user-slash"></i></div>
+                <div class="flex-grow-1">
+                    <div class="tel-modal-title">AD Sync — Employees Marked Inactive</div>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <div class="modal-body">
+                <p id="adSyncSummary" class="mb-3" style="font-size:14px;color:#334155"></p>
+
+                <div class="tel-grid-wrap" id="adSyncResultWrap">
+                    <table class="table table-hover align-middle w-100" id="tblAdSyncResult">
+                        <thead>
+                            <tr>
+                                <th style="width:90px">UID</th>
+                                <th>Employee Name</th>
+                                <th>Username</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+
+                <p id="adSyncNone" class="mb-0 d-none" style="font-size:14px;color:#334155">
+                    No employees were marked inactive — all active accounts are still enabled in Active Directory.
+                </p>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fa fa-times me-1"></i>Close
+                </button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
 @section Scripts {
     <script src="~/js/ManageEmployee.js" asp-append-version="true"></script>
 }

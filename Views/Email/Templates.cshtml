@@ -1,0 +1,121 @@
+@{
+    ViewData["Title"] = "Email Templates";
+    Layout = "_Layout";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/email-templates.css" asp-append-version="true" />
+}
+
+<div class="tpl-page" id="view-email-templates">
+
+    <!-- ── Toolbar (Add · Search) — matches Manage Employee ─────────────────── -->
+    <div class="tel-toolbar">
+        <div class="d-flex gap-2 align-items-center flex-wrap">
+            <button id="btnAddTemplate" type="button" class="btn btn-add-tel btn-sm px-3 d-none">
+                <i class="fa fa-plus me-1"></i>Add Template
+            </button>
+        </div>
+        <div class="tel-search d-none">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" />
+            </svg>
+            <input id="txtSearchTpl" type="text" placeholder="Search templates…" autocomplete="off" />
+        </div>
+    </div>
+
+    <!-- ── Themed grid (matches Manage Employee) ───────────────────────────── -->
+    <div class="tel-grid-wrap">
+        <table id="tblTemplates" class="table table-hover align-middle w-100">
+            <thead>
+                <tr>
+                    <th data-label="Template Type">Template Type</th>
+                    <th data-label="Template Text">Template Text</th>
+                    <th data-label="Country">Country</th>
+                    <th data-label="From">From</th>
+                    <th data-label="BCC">BCC</th>
+                    <th data-label="Edit" class="text-center" style="width:60px">Edit</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>
+
+<!-- ── Add / Edit Template modal (Manage Employee tel-modal theme) ────────── -->
+<div class="modal fade tel-modal" id="templateModal" tabindex="-1" aria-labelledby="tplModalTitle"
+     aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+
+            <div class="modal-header tel-modal-hdr">
+                <div class="tel-modal-icon"><i class="fa fa-envelope-open-text"></i></div>
+                <div class="flex-grow-1">
+                    <div class="tel-modal-title" id="tplModalTitle">Add Template</div>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <div class="modal-body">
+                <input type="hidden" id="hidTplId" />
+
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <label for="cmbTemplate" class="tel-lbl"><i class="fa fa-tags"></i>Template Type</label>
+                        <select id="cmbTemplate" class="form-select tel-input">
+                            <option value="">Select Template Type</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="cmbCountry" class="tel-lbl"><i class="fa fa-globe"></i>Country</label>
+                        <select id="cmbCountry" class="form-select tel-input">
+                            <option value="">Select Country</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="txtTemplate" class="tel-lbl"><i class="fa fa-align-left"></i>Email Text</label>
+                    <textarea id="txtTemplate" class="form-control tel-input" rows="7"></textarea>
+                </div>
+
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <label for="txtEmailFrom" class="tel-lbl"><i class="fa fa-paper-plane"></i>Email From</label>
+                        <input type="text" id="txtEmailFrom" class="form-control tel-input" autocomplete="off" />
+                    </div>
+                    <div class="col-md-6">
+                        <label for="txtEmailBCC" class="tel-lbl"><i class="fa fa-users"></i>Email BCC</label>
+                        <input type="text" id="txtEmailBCC" class="form-control tel-input" autocomplete="off" />
+                    </div>
+                </div>
+
+                <div class="tpl-legend">
+                    <span class="tpl-legend-title">Placeholders:</span>
+                    <code>{0}</code> Employee Name
+                    <code>{1}</code> Bill Amount
+                    <code>{2}</code> Bill Date
+                    <code>{3}</code> Telephone Number
+                    <code>{4}</code> Manager
+                    <code>{5}</code> Provider
+                    <code>{6}</code> Link
+                    <code>{7}</code> Deductible Amount
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fa fa-times me-1"></i>Cancel
+                </button>
+                <button id="btnSaveTemplate" type="button" class="btn btn-success">
+                    <i class="fa fa-plus-circle me-1"></i>Save
+                </button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/emailTemplates.js" asp-append-version="true"></script>
+}
