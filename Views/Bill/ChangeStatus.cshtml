@@ -3,12 +3,80 @@
     Layout = "_Layout";
 }
 
-<div class="d-flex align-items-center mb-3">
-    <h5 class="fw-bold mb-0" style="color:var(--bs-primary)">
-        <i class="fas fa-exchange-alt me-2"></i>Change Bill Status
-    </h5>
+@section Styles {
+    <link rel="stylesheet" href="~/css/change-status.css" asp-append-version="true" />
+}
+
+<div class="cs-page" id="view-change-status">
+
+    <!-- ── Filter card ────────────────────────────────────────────────────── -->
+    <div class="imp-form-card">
+        <input type="hidden" id="hidEmp" />
+        <div class="row g-3 align-items-end">
+            <div class="col-12 col-md-3">
+                <label for="cmbEmployee" class="tel-lbl"><i class="fa fa-user"></i>Employee</label>
+                <select id="cmbEmployee" class="form-select tel-input">
+                    <option value="">All Employees</option>
+                </select>
+            </div>
+            <div class="col-6 col-md-3">
+                <label for="cmbProvider" class="tel-lbl"><i class="fa fa-building"></i>Provider</label>
+                <select id="cmbProvider" class="form-select tel-input">
+                    <option value="">All Providers</option>
+                </select>
+            </div>
+            <div class="col-6 col-md-2">
+                <label for="cmbMonth" class="tel-lbl"><i class="fa fa-calendar"></i>Month</label>
+                <select id="cmbMonth" class="form-select tel-input">
+                    <option value="0">All</option>
+                </select>
+            </div>
+            <div class="col-6 col-md-2">
+                <label for="cmbYear" class="tel-lbl"><i class="fa fa-calendar-alt"></i>Year</label>
+                <select id="cmbYear" class="form-select tel-input">
+                    <option value="0">All</option>
+                </select>
+            </div>
+            <div class="col-6 col-md-2">
+                <div class="d-flex gap-2 justify-content-md-end">
+                    <button type="button" id="btnSearch" class="btn btn-primary"><i class="fa fa-search me-1"></i>Search</button>
+                    <button type="button" id="btnCancel" class="btn btn-secondary"><i class="fa fa-times me-1"></i>Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── Results grid (hidden until a search runs) ──────────────────────── -->
+    <div class="tel-grid-wrap" id="gridWrap" style="display:none">
+        <div class="tel-toolbar">
+            <span class="fw-semibold" style="font-size:14px;color:var(--tx2,#334155)">
+                <i class="fa fa-list me-1" style="color:var(--teal,#2ab3bf)"></i>Search Results
+            </span>
+            <div class="tel-search">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+                </svg>
+                <input id="txtSearchGrid" type="text" placeholder="Filter results…" autocomplete="off" />
+            </div>
+        </div>
+
+        <table id="grdData" class="table table-hover align-middle w-100">
+            <thead>
+                <tr>
+                    <th data-label="Bill Date">Bill Date</th>
+                    <th data-label="Mobile">Mobile</th>
+                    <th data-label="Employee Name">Employee Name</th>
+                    <th data-label="Manager Name">Manager Name</th>
+                    <th data-label="Amount" class="text-end">Amount</th>
+                    <th data-label="Status">Status</th>
+                    <th data-label="Change To" class="text-center" style="width:110px">Change To</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
 </div>
 
-<div class="tis-card">
-    <p class="text-muted">Change Status view — implementation pending.</p>
-</div>
+@section Scripts {
+    <script src="~/js/changeStatus.js" asp-append-version="true"></script>
+}

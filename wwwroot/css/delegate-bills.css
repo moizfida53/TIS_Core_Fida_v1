@@ -1,0 +1,50 @@
+/* ============================================================================
+   delegate-bills.css — styles for Views/Admin/DelegateBills.cshtml
+
+   The shared grid / toolbar / search / modal / picker chrome (.tel-grid-wrap,
+   .tel-toolbar, .tel-search, .tel-modal, .tel-modal-hdr, .tel-input, .tel-picker)
+   is defined GLOBALLY in site.css and is identical to Manage Employee. This page
+   inherits that theme directly — only page-specific rules live here.
+   ============================================================================ */
+
+.dlg-page { padding: 4px 0 16px; }
+
+/* Teal "Add Delegation" toolbar button (same as Manage Employee's Add button) */
+.dlg-page .tel-toolbar .btn-add-tel { background: var(--teal, #2ab3bf); border: 0; color: #fff; }
+.dlg-page .tel-toolbar .btn-add-tel:hover { background: var(--teal-dk, #1e8f99); color: #fff; }
+
+/* Green "Export to Excel" button (mirrors Manage Employee .emp-btn-export) */
+.dlg-page .emp-btn-export {
+    background: #1d6f42; border: 0; color: #fff;
+    padding: 6px 16px; border-radius: 7px; font-size: 13px; font-weight: 600;
+    display: inline-flex; align-items: center; gap: 6px;
+}
+.dlg-page .emp-btn-export:hover { background: #165a36; color: #fff; }
+
+/* Teal accent for the modal rights checkboxes */
+#delegationModal .form-check-input:checked { background-color: var(--teal, #2ab3bf); border-color: var(--teal, #2ab3bf); }
+
+/* Rights pill in the grid */
+.dlg-rights {
+    display: inline-block; font-size: 11px; font-weight: 700; border-radius: 20px;
+    padding: 2px 10px;
+}
+.dlg-rights.yes { background: rgba(42, 179, 191, .15); color: #1e8f99; }
+.dlg-rights.no  { background: #f1f5f9; color: #94a3b8; }
+
+/* ── Responsive: stack grid into cards down to 250px (Manage Employee pattern) ── */
+@media (max-width: 575.98px) {
+    .dlg-page .tel-grid-wrap table.dataTable thead { display: none; }
+    .dlg-page .tel-grid-wrap table.dataTable tbody tr {
+        display: block; border: 1px solid var(--bd, #e5e7eb); border-radius: 8px;
+        margin-bottom: 10px; padding: 4px 0;
+    }
+    .dlg-page .tel-grid-wrap table.dataTable tbody td {
+        display: flex; justify-content: space-between; align-items: center;
+        text-align: right; border: 0; padding: 6px 10px;
+    }
+    .dlg-page .tel-grid-wrap table.dataTable tbody td::before {
+        content: attr(data-label); font-weight: 600; color: #1a3a6e;
+        text-align: left; padding-right: 10px;
+    }
+}

@@ -31,17 +31,21 @@
     function toastOk(msg) {
         Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: msg, showConfirmButton: false, timer: 1800 });
     }
+    // ASP.NET Core serializes JSON as camelCase by default, so the server's
+    // { Message = "…" } arrives as result.message. Read it case-tolerantly.
+    function msgOf(r)  { return (r && (r.message || r.Message)) || ''; }
+    function failOf(r) { return !!(r && (r.fail || r.Fail)); }
 
     // ── Load + render grid ────────────────────────────────────────────────────
 
     function fillGrid() {
         $.getJSON('/SendEmail/GetEmail')
             .done(function (res) {
-                if (res && res.Fail) {
+                if (failOf(res)) {
                     emails = [];
                     render();
                     Swal.fire({ icon: 'warning', title: 'Could not load emails',
-                                text: res.Message || 'No data returned from server.' });
+                                text: msgOf(res) || 'No data returned from server.' });
                     return;
                 }
                 emails = (res && (res.dtSendEmail || res.DtSendEmail)) || [];
@@ -161,7 +165,7 @@
             contentType: 'application/json; charset=utf-8',
             dataType:    'json',
             success: function (result) {
-                if (result.Message === 'Email Sent') {
+                if (msgOf(result) === 'Email Sent') {
                     clearSelection();
                     toastOk('Email Sent Successfully');
                     fillGrid();
@@ -175,39 +179,44 @@
         });
     }
 
-    // ── Delete ────────────────────────────────────────────────────────────────
+    // ── Mark as Sent ───────────────────────────────────────────────────────────
 
-    function deleteEmails() {
+    function markAsSent() {
         var rows = getSelectedRows();
         if (rows.length === 0) {
             Swal.fire({ icon: 'warning', title: 'No Selection', text: 'Please select at least one record.' });
             return;
         }
         Swal.fire({
-            title: 'Delete selected email(s)?', text: 'This cannot be undone.',
-            icon: 'warning', showCancelButton: true, confirmButtonColor: '#dc3545',
-            confirmButtonText: 'Yes, delete', reverseButtons: true
+            title: 'Mark selected as sent?',
+            text: 'The selected email(s) will be flagged as Sent.',
+            icon: 'question', showCancelButton: true, confirmButtonColor: '#0d6efd',
+            confirmButtonText: 'Yes, mark as sent', reverseButtons: true
         }).then(function (r) {
             if (!r.isConfirmed) return;
             var emailId = rows.map(function (x) { return x.id; });
 
             $.ajax({
                 type:        'POST',
-                url:         '/SendEmail/DeleteEmail',
+                url:         '/SendEmail/MarkAsSent',
                 data:        JSON.stringify({ emailId: emailId }),
                 contentType: 'application/json; charset=utf-8',
                 dataType:    'json',
                 success: function (result) {
-                    if (result.Message === 'Deleted') {
+                    if (msgOf(result) === 'Marked') {
+                        var count = (result && (result.count || result.Count)) || emailId.length;
                         clearSelection();
-                        toastOk('Email Deleted Successfully');
-                        fillGrid();
+                        Swal.fire({
+                            icon:  'success',
+                            title: 'Marked as Sent',
+                            text:  count + ' email' + (count > 1 ? 's were' : ' was') + ' successfully marked as sent.'
+                        }).then(function () { fillGrid(); });
                     } else {
-                        Swal.fire({ icon: 'error', title: 'Error', text: 'Cannot delete, please try again.' });
+                        Swal.fire({ icon: 'error', title: 'Error', text: 'Could not mark as sent, please try again.' });
                     }
                 },
                 error: function () {
-                    Swal.fire({ icon: 'error', title: 'Error', text: 'Cannot delete, please try again.' });
+                    Swal.fire({ icon: 'error', title: 'Error', text: 'Could not mark as sent, please try again.' });
                 }
             });
         });
@@ -244,7 +253,7 @@
             contentType: 'application/json; charset=utf-8',
             dataType:    'json',
             success: function (result) {
-                if (result.Message === 'Success') {
+                if (msgOf(result) === 'Success') {
                     bootstrap.Modal.getInstance('#modalEditEmail')?.hide();
                     toastOk('Saved');
                     fillGrid();
@@ -291,7 +300,7 @@
         });
 
         $('#btnSend').on('click', sendEmails);
-        $('#btnDeleteEmail').on('click', deleteEmails);
+        $('#btnMarkSent').on('click', markAsSent);
         $('#btnSaveEmail').on('click', saveEmail);
 
         fillGrid();

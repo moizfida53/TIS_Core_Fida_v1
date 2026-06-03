@@ -1,0 +1,142 @@
+@{
+    ViewData["Title"] = "Manage Delegation of Bills";
+    Layout = "_Layout";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/delegate-bills.css" asp-append-version="true" />
+}
+
+<div class="dlg-page" id="view-delegate-bills">
+
+    <div class="d-flex align-items-center mb-3">
+        <h5 class="fw-bold mb-0" style="color:var(--bs-primary)">
+            <i class="fas fa-user-friends me-2"></i>Manage Delegation of Bills
+        </h5>
+    </div>
+
+    <!-- ── Toolbar (Add · Export · Search) — matches Manage Employee ────────── -->
+    <div class="tel-toolbar">
+        <div class="d-flex gap-2 align-items-center flex-wrap">
+            <button id="btnAddDelegation" type="button" class="btn btn-add-tel btn-sm px-3">
+                <i class="fa fa-plus me-1"></i>Add Delegation
+            </button>
+            <button id="btnExcelExport" type="button" class="emp-btn-export">
+                <i class="fa fa-file-excel me-1"></i>Export to Excel
+            </button>
+        </div>
+        <div class="tel-search">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" />
+            </svg>
+            <input id="txtSearchDlg" type="text" placeholder="Search delegations…" autocomplete="off" />
+        </div>
+    </div>
+
+    <!-- ── Themed grid (matches Manage Employee) ───────────────────────────── -->
+    <div class="tel-grid-wrap">
+        <table id="tblDelegations" class="table table-hover align-middle w-100">
+            <thead>
+                <tr>
+                    <th data-label="Bill Owner">Bill Owner</th>
+                    <th data-label="Delegated To">Delegated To</th>
+                    <th data-label="Approval Rights" class="text-center">Approval Rights</th>
+                    <th data-label="Identification Rights" class="text-center">Identification Rights</th>
+                    <th data-label="Edit" class="text-center" style="width:60px">Edit</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>
+
+<!-- ── Add / Edit Delegation modal (Manage Employee tel-modal theme) ──────── -->
+<div class="modal fade tel-modal" id="delegationModal" tabindex="-1" aria-labelledby="dlgModalTitle"
+     aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+
+            <div class="modal-header tel-modal-hdr">
+                <div class="tel-modal-icon"><i class="fa fa-user-friends"></i></div>
+                <div class="flex-grow-1">
+                    <div class="tel-modal-title" id="dlgModalTitle">Add Delegation</div>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <div class="modal-body">
+                <input type="hidden" id="hidID" />
+
+                <div class="row g-3 mb-4">
+                    <!-- Bill Owner -->
+                    <div class="col-md-6">
+                        <label class="tel-lbl"><i class="fa fa-user"></i>Select Bill Owner</label>
+                        <div class="tel-picker" data-picker="owner">
+                            <input type="hidden" id="hidMan" />
+                            <button type="button" class="form-select tel-input tel-picker-btn is-placeholder"
+                                    data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
+                                Select Bill Owner
+                            </button>
+                            <div class="dropdown-menu tel-picker-menu">
+                                <div class="tel-picker-search-wrap">
+                                    <input type="text" class="tel-picker-search" placeholder="Search name or number…" autocomplete="off" />
+                                </div>
+                                <div class="tel-picker-list"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Delegate To -->
+                    <div class="col-md-6">
+                        <label class="tel-lbl"><i class="fa fa-user-check"></i>Delegate To</label>
+                        <div class="tel-picker" data-picker="delegate">
+                            <input type="hidden" id="hidSec" />
+                            <button type="button" class="form-select tel-input tel-picker-btn is-placeholder"
+                                    data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
+                                Delegate To
+                            </button>
+                            <div class="dropdown-menu tel-picker-menu">
+                                <div class="tel-picker-search-wrap">
+                                    <input type="text" class="tel-picker-search" placeholder="Search name or number…" autocomplete="off" />
+                                </div>
+                                <div class="tel-picker-list"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <label class="tel-lbl"><i class="fa fa-key"></i>Delegated Rights</label>
+                <div class="d-flex flex-wrap gap-4 pt-1">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="chkIdt" />
+                        <label class="form-check-label" for="chkIdt">Identification of Bills</label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="chkApp" />
+                        <label class="form-check-label" for="chkApp">Approve Bills</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fa fa-times me-1"></i>Cancel
+                </button>
+                <button id="btnDel" type="button" class="btn btn-danger" style="display:none">
+                    <i class="fa fa-trash me-1"></i>Delete
+                </button>
+                <button id="btnAdd" type="button" class="btn btn-success">
+                    <i class="fa fa-plus-circle me-1"></i>Add
+                </button>
+                <button id="btnUpdate" type="button" class="btn btn-warning" style="display:none">
+                    <i class="fa fa-edit me-1"></i>Update
+                </button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/delegateBills.js" asp-append-version="true"></script>
+}

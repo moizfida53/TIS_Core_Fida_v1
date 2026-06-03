@@ -1,0 +1,88 @@
+@{
+    ViewData["Title"] = "Un-Assigned Invoices";
+    Layout = "_Layout";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/unassigned-invoice.css" asp-append-version="true" />
+}
+
+<div class="uai-page" id="view-unassigned-invoice">
+
+    <div class="d-flex align-items-center mb-3">
+        <h5 class="fw-bold mb-0" style="color:var(--bs-primary)">
+            <i class="fas fa-file-invoice me-2"></i>Un-Assigned Bills
+        </h5>
+    </div>
+
+    <!-- ── Toolbar (Assign · Export · Search) — matches Manage Employee ─────── -->
+    <div class="tel-toolbar">
+        <div class="d-flex gap-2 align-items-center flex-wrap">
+            <button id="btnAssign" type="button" class="btn btn-add-tel btn-sm px-3">
+                <i class="fa fa-user-check me-1"></i>Assign Records
+            </button>
+            <button id="btnExcelExport" type="button" class="emp-btn-export">
+                <i class="fa fa-file-excel me-1"></i>Export to Excel
+            </button>
+        </div>
+        <div class="tel-search">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" />
+            </svg>
+            <input id="txtSearchInvoice" type="text" placeholder="Search bills…" autocomplete="off" />
+        </div>
+    </div>
+
+    <!-- ── Themed grid (matches Manage Employee) ───────────────────────────── -->
+    <div class="tel-grid-wrap">
+        <table id="tblUnAssigned" class="table table-hover align-middle w-100">
+            <thead>
+                <tr>
+                    <th data-label="Bill Date" class="text-center" style="width:140px">Bill Date</th>
+                    <th data-label="Mobile">Mobile</th>
+                    <th data-label="Provider">Provider</th>
+                    <th data-label="Amount" class="text-end">Amount</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>
+
+<!-- ── Assign confirmation modal (Manage Employee tel-modal theme) ────────── -->
+<div class="modal fade tel-modal" id="modalAssign" tabindex="-1" aria-labelledby="modalAssignLabel"
+     aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+
+            <div class="modal-header tel-modal-hdr">
+                <div class="tel-modal-icon"><i class="fa fa-user-check"></i></div>
+                <div class="flex-grow-1">
+                    <div class="tel-modal-title" id="modalAssignLabel">Assign Un-Assigned Bills</div>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <div class="modal-body">
+                <p class="mb-0 uai-confirm-text">
+                    This will generate and assign all currently un-assigned bills to their
+                    matching employees. Do you want to continue?
+                </p>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fa fa-times me-1"></i>Cancel
+                </button>
+                <button id="btnConfirmAssign" type="button" class="btn btn-success">
+                    <i class="fa fa-user-check me-1"></i>Assign
+                </button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/unAssignedInvoice.js" asp-append-version="true"></script>
+}

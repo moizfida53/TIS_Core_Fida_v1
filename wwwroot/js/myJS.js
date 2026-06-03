@@ -1003,9 +1003,16 @@ function _doApproveCommit(opt, obji, payload, verb, verbed) {
             setDataSourceApproval(AppBills);
 
             // Fire the email pipeline after the bill state is committed.
+            // Routed through the new SendEmailController.Send (sp_GetEmail +
+            // sp_MarkAsSent), passing the bill IDs that were just approved/rejected.
+            var bidList = payload
+                .map(function (p) { return parseInt(p.Id, 10); })
+                .filter(function (n) { return !!n; });
+
             $.ajax({
                 type: "POST", cache: false,
-                url: "/Import/SendEmail",
+                url: "/SendEmail/Send",
+                data: JSON.stringify({ bid: bidList }),
                 contentType: "application/json; charset=utf-8",
                 dataType: "json",
                 success: function () {

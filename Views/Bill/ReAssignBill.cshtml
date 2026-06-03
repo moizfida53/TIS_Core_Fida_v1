@@ -3,12 +3,111 @@
     Layout = "_Layout";
 }
 
-<div class="d-flex align-items-center mb-3">
-    <h5 class="fw-bold mb-0" style="color:var(--bs-primary)">
-        <i class="fas fa-user-edit me-2"></i>Re-Assign Bill
-    </h5>
+@section Styles {
+    <link rel="stylesheet" href="~/css/reassign-bill.css" asp-append-version="true" />
+}
+
+<div class="ra-page" id="view-reassign-bill">
+
+    <div class="d-flex align-items-center mb-3">
+        <h5 class="fw-bold mb-0" style="color:var(--bs-primary)">
+            <i class="fas fa-user-edit me-2"></i>Re-Assign Bill
+        </h5>
+    </div>
+
+    <!-- ── Filter card ────────────────────────────────────────────────────── -->
+    <div class="imp-form-card">
+        <input type="hidden" id="hidEmp" />
+        <div class="row g-3 align-items-end">
+            <div class="col-6 col-md-2">
+                <label for="cmbMonth" class="tel-lbl"><i class="fa fa-calendar"></i>Month</label>
+                <select id="cmbMonth" class="form-select tel-input">
+                    <option value="0">All</option>
+                </select>
+            </div>
+            <div class="col-6 col-md-2">
+                <label for="cmbYear" class="tel-lbl"><i class="fa fa-calendar-alt"></i>Year</label>
+                <select id="cmbYear" class="form-select tel-input">
+                    <option value="0">All</option>
+                </select>
+            </div>
+            <div class="col-6 col-md-3">
+                <label for="cmbProvider" class="tel-lbl"><i class="fa fa-building"></i>Provider</label>
+                <select id="cmbProvider" class="form-select tel-input">
+                    <option value="">All Providers</option>
+                </select>
+            </div>
+            <div class="col-6 col-md-3">
+                <label for="cmbEmployee" class="tel-lbl"><i class="fa fa-user"></i>Employee</label>
+                <select id="cmbEmployee" class="form-select tel-input">
+                    <option value="">All Employees</option>
+                </select>
+            </div>
+            <div class="col-12 col-md-2">
+                <div class="d-flex gap-2 justify-content-md-end">
+                    <button type="button" id="btnSearch" class="btn btn-primary"><i class="fa fa-search me-1"></i>Search</button>
+                    <button type="button" id="btnCancel" class="btn btn-secondary"><i class="fa fa-times me-1"></i>Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── Results grid (hidden until a search runs) ──────────────────────── -->
+    <div class="tel-grid-wrap" id="gridWrap" style="display:none">
+        <div class="tel-toolbar">
+            <span class="fw-semibold ra-toolbar-title">
+                <i class="fa fa-list me-1"></i>Search Results
+            </span>
+            <div class="tel-search">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" />
+                </svg>
+                <input id="txtSearchGrid" type="text" placeholder="Filter results…" autocomplete="off" />
+            </div>
+        </div>
+
+        <table id="grdData" class="table table-hover align-middle w-100">
+            <thead>
+                <tr>
+                    <th data-label="Bill Date">Bill Date</th>
+                    <th data-label="Mobile">Mobile</th>
+                    <th data-label="Employee Name">Employee Name</th>
+                    <th data-label="Manager Name">Manager Name</th>
+                    <th data-label="Amount" class="text-end">Amount</th>
+                    <th data-label="Assign To" class="text-center" style="width:110px">Assign To</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
 </div>
 
-<div class="tis-card">
-    <p class="text-muted">Re-Assign Bill view — implementation pending.</p>
+<!-- ── Assign-employee modal ──────────────────────────────────────────────── -->
+<div class="ra-modal-overlay" id="modalOverlay-Assign"></div>
+<div class="ra-modal-container" id="modalContainer-Assign">
+    <div class="ra-modal-header">
+        <h2 class="ra-modal-title">Select User to Assign As</h2>
+        <button type="button" class="ra-modal-close" id="modalClose-Assign" aria-label="Close">&times;</button>
+    </div>
+    <div class="ra-modal-body">
+        <div class="tel-search ra-modal-search">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" />
+            </svg>
+            <input type="text" id="searchInput-Assign" placeholder="Search by name or employee number…" autocomplete="off" />
+        </div>
+        <div class="ra-grid">
+            <div class="ra-grid-header">
+                <div>Employee No</div>
+                <div>Employee Name</div>
+            </div>
+            <div class="ra-grid-body" id="gridBody-Assign">
+                <div class="ra-loading">Loading employees…</div>
+            </div>
+        </div>
+    </div>
 </div>
+
+@section Scripts {
+    <script src="~/js/reAssignBill.js" asp-append-version="true"></script>
+}

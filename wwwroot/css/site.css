@@ -15928,9 +15928,10 @@ table {
 }
 
 #tblForceBill thead th {
-  background: #1a3a6e;
-  color: #ffffff;
-  font-size: 12px;
+  background: #e8edf7;
+  color: #1a3a6e;
+  font-size: 13px;
+  font-weight: 600;
   white-space: nowrap;
   vertical-align: middle;
 }
@@ -15953,20 +15954,6 @@ table {
   accent-color: #2563eb;
 }
 
-#modalForceBill .modal-header {
-  background: #1a3a6e;
-  color: #ffffff;
-  border-bottom: none;
-  border-radius: 10px 10px 0 0;
-}
-#modalForceBill .modal-content {
-  border: none;
-  border-radius: 10px;
-  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.18);
-}
-#modalForceBill .modal-footer {
-  border-top: 1px solid #d1dbe8;
-}
 #modalForceBill .text-uppercase.small {
   letter-spacing: 0.6px;
   color: #64748b;

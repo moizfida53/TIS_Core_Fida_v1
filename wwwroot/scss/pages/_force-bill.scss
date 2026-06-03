@@ -25,10 +25,13 @@
 // ── 2. DataTable tweaks ───────────────────────────────────────────────────────
 
 #tblForceBill {
+  // Match the shared Manage Employee / ManageProvider grid header theme
+  // (light slate-blue header, navy text) instead of the old dark-navy header.
   thead th {
-    background: $brand-navy;
-    color: $color-surface;
-    font-size: 12px;
+    background: #e8edf7;
+    color: #1a3a6e;
+    font-size: 13px;
+    font-weight: 600;
     white-space: nowrap;
     vertical-align: middle;
   }
@@ -57,24 +60,11 @@
 
 // ── 4. Modal overrides ────────────────────────────────────────────────────────
 
+// Force Bill reuses the shared .tel-modal / .tel-modal-hdr chrome (teal header,
+// rounded card, slate footer) so it matches Manage Employee. Only keep the
+// page-specific tweaks here — do NOT re-skin the header/content/footer, or it
+// will diverge from the shared theme again.
 #modalForceBill {
-  .modal-header {
-    background: $brand-navy;
-    color: $color-surface;
-    border-bottom: none;
-    border-radius: $radius-lg $radius-lg 0 0;
-  }
-
-  .modal-content {
-    border: none;
-    border-radius: $radius-lg;
-    box-shadow: $shadow-lg;
-  }
-
-  .modal-footer {
-    border-top: 1px solid $color-border;
-  }
-
   // Section labels inside modal body
   .text-uppercase.small {
     letter-spacing: 0.6px;

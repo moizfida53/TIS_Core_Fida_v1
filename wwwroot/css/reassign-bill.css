@@ -1,0 +1,113 @@
+/* ============================================================================
+   reassign-bill.css — styles for Views/Bill/ReAssignBill.cshtml
+   Mirrors change-status.css (shared imp-form-card / tel-* grid chrome) and
+   adds the employee-picker modal. Replaces jqWidgets + legacy BillReport.css.
+   ============================================================================ */
+
+.ra-page { padding: 4px 0 16px; }
+
+/* ── Filter card ─────────────────────────────────────────────────────────── */
+.ra-page .imp-form-card {
+    background: #fff;
+    border: 1px solid var(--bd, #e5e7eb);
+    border-radius: 10px;
+    padding: 18px 22px;
+    margin-bottom: 16px;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, .05);
+}
+.ra-page .tel-lbl { font-size: 13px; font-weight: 600; color: var(--tx2, #334155); margin-bottom: 6px; }
+.ra-page .tel-lbl .fa { color: var(--teal-dk, #1e8f99); margin-right: 4px; }
+.ra-page .tel-input {
+    border: 1.5px solid #e2e8f0; border-radius: 8px;
+    transition: border-color .15s, box-shadow .15s;
+}
+.ra-page .tel-input:focus { outline: none; border-color: var(--teal, #2ab3bf); box-shadow: 0 0 0 3px rgba(42, 179, 191, .18); }
+.ra-page select.tel-input { padding-right: 32px; }
+
+/* ── Themed grid ─────────────────────────────────────────────────────────── */
+.ra-page .tel-grid-wrap { background: #fff; border: 1px solid var(--bd, #e5e7eb); border-radius: 10px; padding: 12px; }
+.ra-page .tel-grid-wrap table.dataTable thead th { background: #e8edf7; color: #1a3a6e; font-size: 13px; font-weight: 600; }
+.ra-page .tel-toolbar { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 12px; flex-wrap: wrap; }
+.ra-page .ra-toolbar-title { font-size: 14px; color: var(--tx2, #334155); }
+.ra-page .ra-toolbar-title .fa { color: var(--teal, #2ab3bf); }
+
+/* Search box (shared by toolbar + modal) */
+.tel-search { display: flex; align-items: center; gap: 7px; background: #f8fafc; border: 1px solid #e5e7eb; border-radius: 7px; padding: 6px 12px; min-width: 220px; transition: all .15s; }
+.tel-search:focus-within { border-color: var(--teal, #2ab3bf); background: #fff; box-shadow: 0 0 0 3px rgba(42, 179, 191, .15); }
+.tel-search svg   { width: 14px; height: 14px; opacity: .55; flex-shrink: 0; }
+.tel-search input { border: 0; background: transparent; outline: none; font-size: 12.5px; color: var(--tx, #0f172a); width: 100%; padding: 0; }
+
+/* Per-row "Assign" action button (same look as Change Status' Open button) */
+.ra-page .btn-assign {
+    border: 0; border-radius: 6px; padding: 4px 14px; font-size: 12.5px; font-weight: 600;
+    background: var(--teal, #2ab3bf); color: #fff; cursor: pointer; transition: background .15s;
+}
+.ra-page .btn-assign:hover { background: var(--teal-dk, #1e8f99); }
+
+/* ── Assign-employee modal ───────────────────────────────────────────────── */
+.ra-modal-overlay {
+    position: fixed; inset: 0; background: rgba(15, 23, 42, .45);
+    z-index: 1050; display: none;
+}
+.ra-modal-overlay.active { display: block; }
+
+.ra-modal-container {
+    position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(.96);
+    width: min(560px, 94vw); max-height: 86vh; background: #fff;
+    border-radius: 12px; box-shadow: 0 20px 50px rgba(15, 23, 42, .25);
+    z-index: 1060; display: none; flex-direction: column; overflow: hidden;
+    opacity: 0; transition: opacity .15s, transform .15s;
+}
+.ra-modal-container.active { display: flex; opacity: 1; transform: translate(-50%, -50%) scale(1); }
+
+.ra-modal-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 18px; border-bottom: 1px solid var(--bd, #e5e7eb);
+    background: #e8edf7;
+}
+.ra-modal-title { font-size: 16px; font-weight: 700; color: #1a3a6e; margin: 0; }
+.ra-modal-close { border: 0; background: transparent; font-size: 24px; line-height: 1; color: #64748b; cursor: pointer; }
+.ra-modal-close:hover { color: #0f172a; }
+
+.ra-modal-body { padding: 16px 18px; overflow-y: auto; }
+.ra-modal-search { margin-bottom: 12px; }
+
+.ra-grid { border: 1px solid var(--bd, #e5e7eb); border-radius: 8px; overflow: hidden; }
+.ra-grid-header,
+.ra-grid-row {
+    display: grid; grid-template-columns: 40% 60%; align-items: center;
+}
+.ra-grid-header {
+    background: #e8edf7; color: #1a3a6e; font-size: 12.5px; font-weight: 600;
+    padding: 9px 12px;
+}
+.ra-grid-body { max-height: 340px; overflow-y: auto; }
+.ra-grid-row {
+    padding: 9px 12px; font-size: 13px; color: var(--tx, #0f172a);
+    border-top: 1px solid #f1f5f9; cursor: pointer; transition: background .12s;
+}
+.ra-grid-row:hover { background: #f8fafc; }
+.ra-grid-row.selected-row { background: rgba(42, 179, 191, .14); }
+
+.ra-loading,
+.ra-empty-state { padding: 28px 12px; text-align: center; color: #64748b; font-size: 13px; }
+.ra-empty-icon { font-size: 26px; display: block; margin-bottom: 6px; }
+
+/* ── Responsive: stack grid into cards down to 250px ─────────────────────── */
+@media (max-width: 575.98px) {
+    .ra-page .tel-grid-wrap table.dataTable thead { display: none; }
+    .ra-page .tel-grid-wrap table.dataTable tbody td {
+        display: flex; justify-content: space-between; align-items: center;
+        text-align: right; border: 0; padding: 6px 10px;
+    }
+    .ra-page .tel-grid-wrap table.dataTable tbody td::before {
+        content: attr(data-label); font-weight: 600; color: #1a3a6e;
+        text-align: left; padding-right: 10px;
+    }
+    .ra-page .tel-grid-wrap table.dataTable tbody tr {
+        display: block; border: 1px solid var(--bd, #e5e7eb); border-radius: 8px;
+        margin-bottom: 10px; padding: 4px 0;
+    }
+    .ra-grid-header { display: none; }
+    .ra-grid-row { grid-template-columns: 1fr; gap: 2px; }
+}

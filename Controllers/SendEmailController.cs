@@ -222,6 +222,40 @@ public class SendEmailController : Controller
         }
     }
 
+    // ── Mark selected emails as sent ────────────────────────────────────────────
+    // Flags the selected rows as Sent = 1 in tbl_Emails by Id via sp_MarkEmailAsSent.
+    // This is a plain status update that succeeds even when EmailTo / CC are
+    // NULL or blank (unlike the legacy sp_MarkAsSent pipeline proc). No rows are
+    // deleted. Each row is updated independently so one bad row cannot fail the batch.
+
+    [HttpPost]
+    public IActionResult MarkAsSent([FromBody] Models.SendEmail value)
+    {
+        if (value?.EmailId == null || value.EmailId.Length == 0)
+            return Json(new { Message = "Fail", Detail = "No emails selected" });
+
+        int marked = 0;
+        foreach (var id in value.EmailId)
+        {
+            try
+            {
+                _db.ExecuteStoredProc("sp_MarkEmailAsSent", new[]
+                {
+                    new SqlParameter("@Id", SqlDbType.Int) { Value = id }
+                });
+                marked++;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "MarkAsSent failed for Id {Id}", id);
+            }
+        }
+
+        return marked > 0
+            ? Json(new { Message = "Marked", Count = marked })
+            : Json(new { Message = "Fail" });
+    }
+
     // ── Reminder / scheduler endpoints ──────────────────────────────────────────
     // Preserved from the legacy controller for external schedulers. Each seeds a
     // reminder queue via its SP, then dispatches any pending emails.

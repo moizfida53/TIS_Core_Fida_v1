@@ -1,13 +1,17 @@
 -- =============================================================================
--- TIS – New Stored Procedures
--- Replaces ALL inline SQL that existed in the original controllers.
--- Each procedure is idempotent (DROP IF EXISTS + CREATE).
+-- TIS.NET10 — Consolidated Stored Procedures (single execution script)
+-- -----------------------------------------------------------------------------
+-- Merged from: Main_SQL_Script.sql, NewStoredProcedures.sql,
+--              AdditionalStoredProcedures.sql, sp_BillController_Migrations.sql
+-- Every procedure is defined exactly once and is idempotent (DROP IF EXISTS +
+-- CREATE). Safe to re-run. Conflicting duplicate definitions were resolved to
+-- the version that matches the .NET 10 controller calls.
 -- =============================================================================
+SET NOCOUNT ON;
+GO
 
 -- ---------------------------------------------------------------------------
--- SHARED AUDIT LOG
--- Replaces direct inserts into vwTblUser_tblMaster / vwTBLDetails_TBLMaster
--- Called by every controller's LogAuditFail helper.
+-- sp_InsertAuditLog
 -- ---------------------------------------------------------------------------
 DROP PROCEDURE IF EXISTS sp_InsertAuditLog;
 GO
@@ -40,8 +44,7 @@ END
 GO
 
 -- ---------------------------------------------------------------------------
--- ADMIN – COUNTRY
--- Replaces inline INSERT / UPDATE / DELETE on TBLCOUNTRY
+-- sp_AddCountry
 -- ---------------------------------------------------------------------------
 DROP PROCEDURE IF EXISTS sp_AddCountry;
 GO
@@ -59,6 +62,9 @@ BEGIN
 END
 GO
 
+-- ---------------------------------------------------------------------------
+-- sp_UpdateCountry
+-- ---------------------------------------------------------------------------
 DROP PROCEDURE IF EXISTS sp_UpdateCountry;
 GO
 CREATE PROCEDURE sp_UpdateCountry
@@ -81,6 +87,9 @@ BEGIN
 END
 GO
 
+-- ---------------------------------------------------------------------------
+-- sp_DeleteCountry
+-- ---------------------------------------------------------------------------
 DROP PROCEDURE IF EXISTS sp_DeleteCountry;
 GO
 CREATE PROCEDURE sp_DeleteCountry
@@ -93,8 +102,7 @@ END
 GO
 
 -- ---------------------------------------------------------------------------
--- ADMIN – MANAGER
--- Replaces inline INSERT into TBLUSER
+-- sp_AddManager
 -- ---------------------------------------------------------------------------
 DROP PROCEDURE IF EXISTS sp_AddManager;
 GO
@@ -109,9 +117,7 @@ END
 GO
 
 -- ---------------------------------------------------------------------------
--- ADMIN – TELEPHONE DELETE
--- Replaces inline check + delete on tblSubscription_Number / tblAssignNo
--- Returns Result = 'succ' | 'Exist'
+-- sp_DeleteTelephone
 -- ---------------------------------------------------------------------------
 DROP PROCEDURE IF EXISTS sp_DeleteTelephone;
 GO
@@ -147,8 +153,7 @@ END
 GO
 
 -- ---------------------------------------------------------------------------
--- ADMIN – ASSIGNMENT DELETE
--- Replaces inline DELETE on tblAssignNo + audit insert
+-- sp_DeleteAssignNumber
 -- ---------------------------------------------------------------------------
 DROP PROCEDURE IF EXISTS sp_DeleteAssignNumber;
 GO
@@ -166,8 +171,7 @@ END
 GO
 
 -- ---------------------------------------------------------------------------
--- ADMIN – CONTACT SAVE
--- Replaces inline INSERT / UPDATE on tblContact
+-- sp_SaveContact
 -- ---------------------------------------------------------------------------
 DROP PROCEDURE IF EXISTS sp_SaveContact;
 GO
@@ -193,8 +197,7 @@ END
 GO
 
 -- ---------------------------------------------------------------------------
--- ADMIN – DATA ROAMING DELETE
--- Replaces inline DELETE on tblDataRoaming
+-- sp_DeleteDataRoaming
 -- ---------------------------------------------------------------------------
 DROP PROCEDURE IF EXISTS sp_DeleteDataRoaming;
 GO
@@ -208,7 +211,7 @@ END
 GO
 
 -- ---------------------------------------------------------------------------
--- ADMIN – GET ALL PACKAGES (was inline SELECT * FROM TBL_PKG_MASTER)
+-- sp_GetAllPackages
 -- ---------------------------------------------------------------------------
 DROP PROCEDURE IF EXISTS sp_GetAllPackages;
 GO
@@ -221,7 +224,7 @@ END
 GO
 
 -- ---------------------------------------------------------------------------
--- ADMIN – FILL TRANS TYPE (was inline SELECT on TBL_PKGCALLTYPE)
+-- sp_GetPackageTransTypes
 -- ---------------------------------------------------------------------------
 DROP PROCEDURE IF EXISTS sp_GetPackageTransTypes;
 GO
@@ -238,7 +241,7 @@ END
 GO
 
 -- ---------------------------------------------------------------------------
--- ADMIN – FILL DESC (was inline SELECT on TBL_PKGCALLDESC)
+-- sp_GetPackageCallDescs
 -- ---------------------------------------------------------------------------
 DROP PROCEDURE IF EXISTS sp_GetPackageCallDescs;
 GO
@@ -255,8 +258,7 @@ END
 GO
 
 -- ---------------------------------------------------------------------------
--- AUDIT REPORT – SEARCH
--- Replaces inline SELECT on TBL_AT_MASTER with string concatenation
+-- sp_AuditReportSearch
 -- ---------------------------------------------------------------------------
 DROP PROCEDURE IF EXISTS sp_AuditReportSearch;
 GO
@@ -287,8 +289,7 @@ END
 GO
 
 -- ---------------------------------------------------------------------------
--- AUDIT REPORT – DETAILS
--- Replaces inline SELECT on TBL_AT_DETAILS
+-- sp_AuditReportDetails
 -- ---------------------------------------------------------------------------
 DROP PROCEDURE IF EXISTS sp_AuditReportDetails;
 GO
@@ -304,7 +305,7 @@ END
 GO
 
 -- ---------------------------------------------------------------------------
--- AUDIT REPORT – GET ALL EMPLOYEES (was inline SELECT on tbluser)
+-- sp_GetAllEmployeesForAudit
 -- ---------------------------------------------------------------------------
 DROP PROCEDURE IF EXISTS sp_GetAllEmployeesForAudit;
 GO
@@ -317,33 +318,38 @@ END
 GO
 
 -- ---------------------------------------------------------------------------
--- BILL – SEARCH CLOSE BILLS
--- Replaces dynamic inline SQL in BillController.SearchCloseBill
+-- sp_SearchCloseBill
 -- ---------------------------------------------------------------------------
 DROP PROCEDURE IF EXISTS sp_SearchCloseBill;
 GO
 CREATE PROCEDURE sp_SearchCloseBill
     @Month    INT = 0,
     @Year     INT = 0,
-    @Uid      INT = 0,
+    @UID      INT = 0,
     @Provider INT = 0
 AS
 BEGIN
     SET NOCOUNT ON;
 
-    SELECT *
-    FROM   vwPendingBills_new
-    WHERE  status = 4
-      AND  (@Month    = 0 OR MONTH(billdate) = @Month)
-      AND  (@Year     = 0 OR YEAR(billdate)  = @Year)
-      AND  (@Uid      = 0 OR UID             = @Uid)
-      AND  (@Provider = 0 OR provider        = @Provider);
-END
+    SELECT
+        BILL_ID,
+        BILLDATE,
+        SUB_NO,
+        EMPLOYEENAME,
+        Appr_Manager,
+        TOTALAMOUNT,
+        STATUSNAME
+    FROM vwPendingBills_new
+    WHERE status = 4
+      AND (@Month    = 0 OR MONTH(BILLDATE)  = @Month)
+      AND (@Year     = 0 OR YEAR(BILLDATE)   = @Year)
+      AND (@UID      = 0 OR UID              = @UID)
+      AND (@Provider = 0 OR provider         = @Provider);
+END;
 GO
 
 -- ---------------------------------------------------------------------------
--- BILL REPORT – SEARCH
--- Replaces dynamic inline SQL in BillReportController.Search
+-- sp_BillReportSearch
 -- ---------------------------------------------------------------------------
 DROP PROCEDURE IF EXISTS sp_BillReportSearch;
 GO
@@ -370,8 +376,7 @@ END
 GO
 
 -- ---------------------------------------------------------------------------
--- REPORT – SEARCH
--- Replaces dynamic inline SQL in ReportController.Search
+-- sp_ReportSearch
 -- ---------------------------------------------------------------------------
 DROP PROCEDURE IF EXISTS sp_ReportSearch;
 GO
@@ -397,8 +402,7 @@ END
 GO
 
 -- ---------------------------------------------------------------------------
--- BILL – RE-IMBURSE BILL
--- Replaces inline SELECT + UPDATE in BillController.ReimbursingBill
+-- sp_ReimbursingBill
 -- ---------------------------------------------------------------------------
 DROP PROCEDURE IF EXISTS sp_ReimbursingBill;
 GO
@@ -423,8 +427,7 @@ END
 GO
 
 -- ---------------------------------------------------------------------------
--- BILL – CHANGE BILL STATUS (individual)
--- Replaces inline UPDATE in BillController.ChangeBillStatus
+-- sp_ChangeBillStatusBatch
 -- ---------------------------------------------------------------------------
 DROP PROCEDURE IF EXISTS sp_ChangeBillStatusBatch;
 GO
@@ -450,8 +453,7 @@ END
 GO
 
 -- ---------------------------------------------------------------------------
--- BILL – RE-ASSIGN BILL
--- Replaces inline UPDATE in BillController.ReAssigningBill
+-- sp_ReAssignBillBatch
 -- ---------------------------------------------------------------------------
 DROP PROCEDURE IF EXISTS sp_ReAssignBillBatch;
 GO
@@ -479,8 +481,7 @@ END
 GO
 
 -- ---------------------------------------------------------------------------
--- SETTING – FILL TRANS TYPE
--- Replaces inline SELECT on tblCallRecord
+-- sp_GetCallRecordTransTypes
 -- ---------------------------------------------------------------------------
 DROP PROCEDURE IF EXISTS sp_GetCallRecordTransTypes;
 GO
@@ -497,8 +498,7 @@ END
 GO
 
 -- ---------------------------------------------------------------------------
--- SETTING – FILL DESC
--- Replaces inline SELECT on TBLCALLRECORD
+-- sp_GetCallRecordDescriptions
 -- ---------------------------------------------------------------------------
 DROP PROCEDURE IF EXISTS sp_GetCallRecordDescriptions;
 GO
@@ -517,7 +517,7 @@ END
 GO
 
 -- ---------------------------------------------------------------------------
--- SETTING – GET CALL TYPE (was inline SELECT on tblCallType)
+-- sp_GetCallTypes
 -- ---------------------------------------------------------------------------
 DROP PROCEDURE IF EXISTS sp_GetCallTypes;
 GO
@@ -530,7 +530,7 @@ END
 GO
 
 -- ---------------------------------------------------------------------------
--- SETTING – GET EMPLOYEE (for policy mapping; was inline SELECT on vwEmpCallID)
+-- sp_GetEmpCallId
 -- ---------------------------------------------------------------------------
 DROP PROCEDURE IF EXISTS sp_GetEmpCallId;
 GO
@@ -545,7 +545,7 @@ END
 GO
 
 -- ---------------------------------------------------------------------------
--- SETTING – GET POLICY DETAIL (was inline SELECT on tblManageCallTypeDetail)
+-- sp_GetPolicyDetail
 -- ---------------------------------------------------------------------------
 DROP PROCEDURE IF EXISTS sp_GetPolicyDetail;
 GO
@@ -559,7 +559,7 @@ END
 GO
 
 -- ---------------------------------------------------------------------------
--- SETTING – GET EMP LIST FOR POLICY (was inline SELECT joining TBLUSER / TBLASSIGNNO)
+-- sp_GetPolicyEmpList
 -- ---------------------------------------------------------------------------
 DROP PROCEDURE IF EXISTS sp_GetPolicyEmpList;
 GO
@@ -581,7 +581,7 @@ END
 GO
 
 -- ---------------------------------------------------------------------------
--- SETTING – GET CONFIG (was inline SELECT on tblConfiguration)
+-- sp_GetConfig
 -- ---------------------------------------------------------------------------
 DROP PROCEDURE IF EXISTS sp_GetConfig;
 GO
@@ -594,8 +594,7 @@ END
 GO
 
 -- ---------------------------------------------------------------------------
--- SETTING – SAVE CONFIG
--- Replaces massive inline UPDATE on tblConfiguration
+-- sp_SaveConfig
 -- ---------------------------------------------------------------------------
 DROP PROCEDURE IF EXISTS sp_SaveConfig;
 GO
@@ -656,36 +655,13 @@ END
 GO
 
 -- ---------------------------------------------------------------------------
--- SETTING – GET / ADD / UPDATE / DELETE PROVIDER
--- Replaces inline DML on tblProvider
+-- sp_UpdateProvider
 -- ---------------------------------------------------------------------------
-DROP PROCEDURE IF EXISTS sp_GetProviderList;
-GO
-CREATE PROCEDURE sp_GetProviderList
-AS
-BEGIN
-    SET NOCOUNT ON;
-    SELECT ID, Name, IsVoip, COUNTRYID FROM tblProvider;
-END
-GO
-
-DROP PROCEDURE IF EXISTS sp_AddProvider;
-GO
-CREATE PROCEDURE sp_AddProvider
-    @Name   VARCHAR(200),
-    @IsVoip BIT
-AS
-BEGIN
-    SET NOCOUNT ON;
-    INSERT INTO tblProvider (Name, IsVoip) VALUES (@Name, @IsVoip);
-END
-GO
-
 DROP PROCEDURE IF EXISTS sp_UpdateProvider;
 GO
 CREATE PROCEDURE sp_UpdateProvider
     @ID     INT,
-    @Name   VARCHAR(200),
+    @Name   NVARCHAR(200),
     @IsVoip BIT
 AS
 BEGIN
@@ -694,6 +670,9 @@ BEGIN
 END
 GO
 
+-- ---------------------------------------------------------------------------
+-- sp_DeleteProvider
+-- ---------------------------------------------------------------------------
 DROP PROCEDURE IF EXISTS sp_DeleteProvider;
 GO
 CREATE PROCEDURE sp_DeleteProvider
@@ -706,8 +685,7 @@ END
 GO
 
 -- ---------------------------------------------------------------------------
--- SETTING – ADD POLICY
--- Replaces inline INSERT on tblManageCalltype + tblManageCallTypeDetail
+-- sp_AddPolicy
 -- ---------------------------------------------------------------------------
 DROP PROCEDURE IF EXISTS sp_AddPolicy;
 GO
@@ -759,18 +737,17 @@ END
 GO
 
 -- ---------------------------------------------------------------------------
--- SETTING – UPDATE POLICY
--- Replaces inline UPDATE/DELETE on tblManageCalltype + tblManageCallTypeDetail
+-- sp_UpdatePolicy
 -- ---------------------------------------------------------------------------
 DROP PROCEDURE IF EXISTS sp_UpdatePolicy;
 GO
 CREATE PROCEDURE sp_UpdatePolicy
-    @ID     INT,
-    @IsAll  BIT,
+    @ID       INT,
+    @IsAll    BIT,
     @IsSupImp BIT,
-    @EmpIds VARCHAR(MAX) = NULL,
-    @NumIds VARCHAR(MAX) = NULL,
-    @UserId VARCHAR(50)
+    @EmpIds   VARCHAR(MAX) = NULL,
+    @NumIds   VARCHAR(MAX) = NULL,
+    @UserId   VARCHAR(50)
 AS
 BEGIN
     SET NOCOUNT ON;
@@ -787,19 +764,18 @@ BEGIN
     IF @IsAll = 0 AND @EmpIds IS NOT NULL
     BEGIN
         INSERT INTO tblManageCallTypeDetail (uid, sub_no_id, ManageCallTypeID)
-        SELECT CAST(e.value AS INT),
-               CAST(n.value AS INT),
+        SELECT CAST(e.[value] AS INT),
+               CAST(n.[value] AS INT),
                @ID
-        FROM   STRING_SPLIT(@EmpIds, ',') e
-        JOIN   STRING_SPLIT(@NumIds, ',') n
-               ON  ROW_NUMBER() OVER (ORDER BY (SELECT NULL)) = ROW_NUMBER() OVER (ORDER BY (SELECT NULL));
+        FROM   OPENJSON('["' + REPLACE(@EmpIds, ',', '","') + '"]') e
+        JOIN   OPENJSON('["' + REPLACE(@NumIds, ',', '","') + '"]') n
+               ON e.[key] = n.[key];
     END
 END
 GO
 
 -- ---------------------------------------------------------------------------
--- SETTING – APPLY POLICY
--- Replaces inline UPDATE on M6_CR
+-- sp_ApplyPolicy
 -- ---------------------------------------------------------------------------
 DROP PROCEDURE IF EXISTS sp_ApplyPolicy;
 GO
@@ -812,8 +788,7 @@ END
 GO
 
 -- ---------------------------------------------------------------------------
--- SETTING – GET PROVIDER (for CheckProvider in ImportController)
--- Replaces inline SELECT DbBased FROM tblProvider
+-- sp_GetProviderDbBased
 -- ---------------------------------------------------------------------------
 DROP PROCEDURE IF EXISTS sp_GetProviderDbBased;
 GO
@@ -827,8 +802,7 @@ END
 GO
 
 -- ---------------------------------------------------------------------------
--- IMPORT – GET UPLOAD SETTING
--- Replaces inline SELECT * FROM tblProvider WHERE ID
+-- sp_GetUploadSetting
 -- ---------------------------------------------------------------------------
 DROP PROCEDURE IF EXISTS sp_GetUploadSetting;
 GO
@@ -846,8 +820,7 @@ END
 GO
 
 -- ---------------------------------------------------------------------------
--- IMPORT – UPDATE IMPORT RECORD
--- Replaces inline UPDATE on tblImport + SELECT of null rows
+-- sp_UpdateImportRecord
 -- ---------------------------------------------------------------------------
 DROP PROCEDURE IF EXISTS sp_UpdateImportRecord;
 GO
@@ -876,8 +849,7 @@ END
 GO
 
 -- ---------------------------------------------------------------------------
--- PIVOT – SAVE PIVOT STATE
--- Replaces inline INSERT into tblPivot
+-- sp_SavePivot
 -- ---------------------------------------------------------------------------
 DROP PROCEDURE IF EXISTS sp_SavePivot;
 GO
@@ -891,8 +863,7 @@ END
 GO
 
 -- ---------------------------------------------------------------------------
--- PIVOT – RESTORE PIVOT STATE
--- Replaces inline SELECT TOP 1 Object FROM tblPivot
+-- sp_RestorePivot
 -- ---------------------------------------------------------------------------
 DROP PROCEDURE IF EXISTS sp_RestorePivot;
 GO
@@ -905,21 +876,656 @@ END
 GO
 
 -- ---------------------------------------------------------------------------
--- SAP PENDING – MARK AS POSTED
--- Already used sp_SAP_MarkAsPosted – kept for reference, no change needed.
+-- sp_GetProviders
 -- ---------------------------------------------------------------------------
+DROP PROCEDURE IF EXISTS sp_GetProviders;
+GO
+CREATE PROCEDURE sp_GetProviders
+AS
+BEGIN
+    SET NOCOUNT ON;
+    SELECT ID, Name, IsVoip, COUNTRYID FROM tblProvider ORDER BY Name;
+END
+GO
 
 -- ---------------------------------------------------------------------------
--- SEND EMAIL – REMINDER HELPERS
--- Replaces calls to stored procs that were triggered from void methods
--- (no body change needed – listing for completeness)
--- sp_BillIdentification_Reminder  -- existing
--- sp_ForceBill_Reminder           -- existing
--- sp_SetForceBill_ReminderNew     -- existing
--- sp_SetBill_ReminderNew          -- existing
--- SP_BillApprovalReminder_New     -- existing
--- sp_GetPendingEmail              -- existing
+-- sp_AddProvider
 -- ---------------------------------------------------------------------------
+DROP PROCEDURE IF EXISTS sp_AddProvider;
+GO
+CREATE PROCEDURE sp_AddProvider
+    @Name   NVARCHAR(200),
+    @IsVoip BIT
+AS
+BEGIN
+    SET NOCOUNT ON;
+    INSERT INTO tblProvider (Name, IsVoip) VALUES (@Name, @IsVoip);
+END
+GO
 
-PRINT 'All new stored procedures created successfully.';
+-- ---------------------------------------------------------------------------
+-- sp_GetConfiguration
+-- ---------------------------------------------------------------------------
+DROP PROCEDURE IF EXISTS sp_GetConfiguration;
+GO
+CREATE PROCEDURE sp_GetConfiguration
+AS
+BEGIN
+    SET NOCOUNT ON;
+    SELECT * FROM tblConfiguration WHERE ID = 1;
+END
+GO
+
+-- ---------------------------------------------------------------------------
+-- sp_SaveConfiguration
+-- ---------------------------------------------------------------------------
+DROP PROCEDURE IF EXISTS sp_SaveConfiguration;
+GO
+CREATE PROCEDURE sp_SaveConfiguration
+    @EmpReminder        NVARCHAR(50),
+    @MgrReminder        NVARCHAR(50),
+    @FbReminder         NVARCHAR(50),
+    @LmReminder         NVARCHAR(50),
+    @Smtp               NVARCHAR(255),
+    @AdminEmail         NVARCHAR(255),
+    @HostUrl            NVARCHAR(255),
+    @SupGrade           NVARCHAR(50),
+    @EnableGrade        NVARCHAR(10),
+    @DntSndEmail        NVARCHAR(10),
+    @HidePerCalls       NVARCHAR(10),
+    @GmApp              NVARCHAR(10),
+    @EnableDiscrepancy  NVARCHAR(10),
+    @SkipAppBusZero     NVARCHAR(10),
+    @DedBusCharges      NVARCHAR(10),
+    @ZeroUnlimited      NVARCHAR(10),
+    @AlwWav             NVARCHAR(10),
+    @EnableDelete       NVARCHAR(10),
+    @AlwTrainFb         NVARCHAR(10),
+    @HideAllowanceLimit NVARCHAR(10),
+    @HidePersonalLimit  NVARCHAR(10)
+AS
+BEGIN
+    SET NOCOUNT ON;
+    UPDATE tblConfiguration SET
+        EmpReminder             = @EmpReminder,
+        MgrComplaintReminder    = @MgrReminder,
+        ForceBillReminder       = @FbReminder,
+        LMReminder              = @LmReminder,
+        SMTPSettings            = @Smtp,
+        AdminEmail              = @AdminEmail,
+        HostUrl                 = @HostUrl,
+        SuperGrade              = @SupGrade,
+        EnableGrade             = @EnableGrade,
+        NotSendMail             = @DntSndEmail,
+        HidePersonalCalls       = @HidePerCalls,
+        skipGMApproval          = @GmApp,
+        EnableDiscrepancy       = @EnableDiscrepancy,
+        SkipApprovalBuss        = @SkipAppBusZero,
+        DedBussinessCharges     = @DedBusCharges,
+        BusinessZeroAsUnlimited = @ZeroUnlimited,
+        AllowWaiver             = @AlwWav,
+        DeleteBut               = @EnableDelete,
+        AllowTrainForceBill     = @AlwTrainFb,
+        HideAllowanceLimit      = @HideAllowanceLimit,
+        HidePersonalLimit       = @HidePersonalLimit
+    WHERE ID = 1;
+END
+GO
+
+-- ---------------------------------------------------------------------------
+-- sp_GetTransTypes
+-- ---------------------------------------------------------------------------
+DROP PROCEDURE IF EXISTS sp_GetTransTypes;
+GO
+CREATE PROCEDURE sp_GetTransTypes
+    @ProviderId INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+    SELECT DISTINCT TRANS_TYPE
+    FROM   tblCallRecord
+    WHERE  Provider_Type = @ProviderId
+    ORDER  BY TRANS_TYPE;
+END
+GO
+
+-- ---------------------------------------------------------------------------
+-- sp_GetDescriptions
+-- ---------------------------------------------------------------------------
+DROP PROCEDURE IF EXISTS sp_GetDescriptions;
+GO
+CREATE PROCEDURE sp_GetDescriptions
+    @ProviderId INT,
+    @TransType  NVARCHAR(255)
+AS
+BEGIN
+    SET NOCOUNT ON;
+    SELECT DISTINCT [DESCRIPTION]
+    FROM   TBLCALLRECORD
+    WHERE  [TRANS_TYPE] = @TransType
+      AND  PROVIDER_TYPE = @ProviderId
+    ORDER  BY [DESCRIPTION];
+END
+GO
+
+-- ---------------------------------------------------------------------------
+-- sp_GetPolicies
+-- ---------------------------------------------------------------------------
+DROP PROCEDURE IF EXISTS sp_GetPolicies;
+GO
+CREATE PROCEDURE sp_GetPolicies
+AS
+BEGIN
+    SET NOCOUNT ON;
+    SELECT DISTINCT id, Provider_type_desc, call_type, provider, providername,
+           call_type_desc, destination_desc, IsAll, Superimpose_train, LineType, LineTypeName
+    FROM   vwManageCalltype
+    WHERE  isadmin = 1
+    ORDER  BY provider, Provider_Type_Desc, Call_Type;
+END
+GO
+
+-- ---------------------------------------------------------------------------
+-- sp_InsertPolicy
+-- ---------------------------------------------------------------------------
+DROP PROCEDURE IF EXISTS sp_InsertPolicy;
+GO
+CREATE PROCEDURE sp_InsertPolicy
+    @ProviderId       INT,
+    @TransType        NVARCHAR(255),
+    @DestinationDesc  NVARCHAR(255),
+    @CallTypeId       INT,
+    @IsAll            NVARCHAR(10),
+    @IsSupImp         NVARCHAR(10),
+    @LineTypeId       INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+    DECLARE @id INT = ISNULL((SELECT MAX(ID) FROM tblManageCallType), 0) + 1;
+
+    INSERT INTO tblManageCalltype
+        (id, provider, Provider_type_desc, destination_desc, call_type,
+         IsAll, Superimpose_train, IsAdmin, LineType)
+    VALUES
+        (@id, @ProviderId, @TransType, @DestinationDesc, @CallTypeId,
+         @IsAll, @IsSupImp, 'true', @LineTypeId);
+
+    SELECT @id AS NewId;
+END
+GO
+
+-- ---------------------------------------------------------------------------
+-- sp_InsertPolicyDetail
+-- ---------------------------------------------------------------------------
+DROP PROCEDURE IF EXISTS sp_InsertPolicyDetail;
+GO
+CREATE PROCEDURE sp_InsertPolicyDetail
+    @Uid              INT,
+    @SubNoId          INT,
+    @ManageCallTypeId INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+    INSERT INTO tblManageCallTypeDetail (uid, sub_no_id, ManageCallTypeID)
+    VALUES (@Uid, @SubNoId, @ManageCallTypeId);
+END
+GO
+
+-- ---------------------------------------------------------------------------
+-- sp_UpdatePolicyHeader
+-- ---------------------------------------------------------------------------
+DROP PROCEDURE IF EXISTS sp_UpdatePolicyHeader;
+GO
+CREATE PROCEDURE sp_UpdatePolicyHeader
+    @Id       INT,
+    @IsAll    NVARCHAR(10),
+    @IsSupImp NVARCHAR(10)
+AS
+BEGIN
+    SET NOCOUNT ON;
+    UPDATE tblManageCalltype
+    SET    IsAll = @IsAll, Superimpose_train = @IsSupImp
+    WHERE  id = @Id;
+
+    DELETE FROM tblManageCallTypeDetail WHERE ManageCallTypeID = @Id;
+END
+GO
+
+-- ---------------------------------------------------------------------------
+-- sp_GetPolicyEmployees
+-- ---------------------------------------------------------------------------
+DROP PROCEDURE IF EXISTS sp_GetPolicyEmployees;
+GO
+CREATE PROCEDURE sp_GetPolicyEmployees
+    @Id INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+    SELECT NAME, EMPLOYEENO
+    FROM   TBLUSER
+    WHERE  UID IN (
+        SELECT UID FROM TBLASSIGNNO
+        WHERE Subs_no_ID IN (
+            SELECT SUB_NO_ID FROM tblManageCallTypeDetail WHERE ManageCallTypeID = @Id
+        )
+    );
+END
+GO
+
+-- ---------------------------------------------------------------------------
+-- sp_ClearTmpBillIds
+-- ---------------------------------------------------------------------------
+DROP PROCEDURE IF EXISTS sp_ClearTmpBillIds;
+GO
+CREATE PROCEDURE sp_ClearTmpBillIds
+AS
+BEGIN
+    SET NOCOUNT ON;
+    DELETE FROM tmp_bill_ids;
+END;
+GO
+
+-- ---------------------------------------------------------------------------
+-- sp_InsertTmpBillId
+-- ---------------------------------------------------------------------------
+DROP PROCEDURE IF EXISTS sp_InsertTmpBillId;
+GO
+CREATE PROCEDURE sp_InsertTmpBillId
+    @BillId INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+    INSERT INTO tmp_bill_ids VALUES (@BillId);
+END;
+GO
+
+-- ---------------------------------------------------------------------------
+-- sp_GetAllStatuses
+-- ---------------------------------------------------------------------------
+DROP PROCEDURE IF EXISTS sp_GetAllStatuses;
+GO
+CREATE PROCEDURE sp_GetAllStatuses
+AS
+BEGIN
+    SET NOCOUNT ON;
+    SELECT ID, Name FROM tblStatus ORDER BY ID;
+END
+GO
+
+-- ---------------------------------------------------------------------------
+-- sp_ReimbursingBill_Item
+-- ---------------------------------------------------------------------------
+DROP PROCEDURE IF EXISTS sp_ReimbursingBill_Item;
+GO
+CREATE PROCEDURE sp_ReimbursingBill_Item
+    @BillId INT,
+    @UserId INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    -- Audit log — success
+    INSERT INTO vwTblUser_tblMaster (FORM_ID, ACTION_NAME, RESULT, USERID)
+    VALUES (13, 'Re-ImbursementBill', 'Success', @UserId);
+
+    -- Apply re-imbursement
+    UPDATE tblBills
+    SET
+        ReimbursementAmount = DeductibleAmount + WaiverAmount,
+        DeductibleAmount    = DeductibleAmount + WaiverAmount,
+        Status              = 1,
+        WaiverRejection     = NULL,
+        WaiverAmount        = 0
+    WHERE Bill_ID = @BillId;
+END;
+GO
+
+-- ---------------------------------------------------------------------------
+-- sp_ChangeBillStatus_Item
+-- ---------------------------------------------------------------------------
+DROP PROCEDURE IF EXISTS sp_ChangeBillStatus_Item;
+GO
+CREATE PROCEDURE sp_ChangeBillStatus_Item
+    @BillId INT,
+    @Status INT,
+    @UserId INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    -- Audit log — success
+    INSERT INTO vwTblUser_tblMaster (FORM_ID, ACTION_NAME, RESULT, USERID)
+    VALUES (14, 'Change Bill Status', 'Success', @UserId);
+
+    -- Apply status change + waiver collapse
+    UPDATE tblBills
+    SET
+        status              = @Status,
+        comments            = '',
+        DeductibleAmount    = DeductibleAmount + WaiverAmount,
+        WaiverAmount        = 0,
+        WaiverRejection     = NULL
+    WHERE bill_id = @BillId;
+END;
+GO
+
+-- ---------------------------------------------------------------------------
+-- sp_ReAssigningBill_Item
+-- ---------------------------------------------------------------------------
+DROP PROCEDURE IF EXISTS sp_ReAssigningBill_Item;
+GO
+CREATE PROCEDURE sp_ReAssigningBill_Item
+    @BillId    INT,
+    @NewUid    INT,
+    @LogUserId INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    DECLARE @ManagerId INT;
+    SELECT @ManagerId = ManagerID FROM tbluser WHERE UID = @NewUid;
+
+    -- Audit log — success
+    INSERT INTO vwTblUser_tblMaster (FORM_ID, ACTION_NAME, RESULT, USERID)
+    VALUES (15, 'Re-AssingBill', 'Success', @LogUserId);
+
+    -- Re-assign bill owner and managers
+    UPDATE tblBills
+    SET
+        UID          = @NewUid,
+        LINEMANAGER  = @ManagerId,
+        ROUTEMANAGER = @ManagerId
+    WHERE bill_id = @BillId;
+
+    -- Re-assign call records
+    UPDATE tblCallRecord
+    SET AUID = @NewUid
+    WHERE bill_id = @BillId;
+END;
+GO
+
+-- ---------------------------------------------------------------------------
+-- sp_LogAuditAction
+-- ---------------------------------------------------------------------------
+DROP PROCEDURE IF EXISTS sp_LogAuditAction;
+GO
+CREATE PROCEDURE sp_LogAuditAction
+    @FormId     INT,
+    @ActionName NVARCHAR(100),
+    @Result     NVARCHAR(20),
+    @UserId     INT,
+    @ErrorText  NVARCHAR(MAX) = NULL
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    -- Primary audit record
+    INSERT INTO vwTblUser_tblMaster (FORM_ID, ACTION_NAME, RESULT, USERID)
+    VALUES (@FormId, @ActionName, @Result, @UserId);
+
+    -- Detail record (only when there is error text)
+    IF @ErrorText IS NOT NULL AND LEN(@ErrorText) > 0
+    BEGIN
+        DECLARE @AtId INT;
+        SELECT TOP 1 @AtId = ID
+        FROM TBL_AT_MASTER
+        ORDER BY date1 DESC;
+
+        INSERT INTO [vwTBLDetails_TBLMaster]
+            ([SNO], [AT_ID], [OLD_VALUE], [NEW_VALUE], [FIELD_NAME])
+        VALUES
+            (@FormId, @AtId, '', @ErrorText, @ActionName);
+    END;
+END;
+GO
+
+-- ---------------------------------------------------------------------------
+-- sp_GetImportTotalAmount
+-- ---------------------------------------------------------------------------
+DROP PROCEDURE IF EXISTS sp_GetImportTotalAmount;
+GO
+CREATE PROCEDURE sp_GetImportTotalAmount
+AS
+BEGIN
+    SET NOCOUNT ON;
+    SELECT ROUND(SUM(amount), 3) FROM tblimport;
+END
+GO
+
+-- ---------------------------------------------------------------------------
+-- sp_GetImportColumnMappings
+-- ---------------------------------------------------------------------------
+DROP PROCEDURE IF EXISTS sp_GetImportColumnMappings;
+GO
+CREATE PROCEDURE sp_GetImportColumnMappings
+    @ProviderID INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+    SELECT [excel_col1], 'BillDateNew' AS [excel_col2],
+           [excel_col3], [excel_col4], [excel_col5],
+           [excel_col6], [excel_col7], [excel_col8], [excel_col9]
+    FROM   tblProvider
+    WHERE  id = @ProviderID;
+END
+GO
+
+-- ---------------------------------------------------------------------------
+-- sp_GetUnassignedBills
+-- ---------------------------------------------------------------------------
+DROP PROCEDURE IF EXISTS sp_GetUnassignedBills;
+GO
+CREATE PROCEDURE sp_GetUnassignedBills
+    @CountryID INT,
+    @RoleID    INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+    IF @RoleID = 8
+        SELECT * FROM [vw_Unassign_Grid];
+    ELSE
+        SELECT * FROM [vw_Unassign_Grid] WHERE CountryID = @CountryID;
+END
+GO
+
+-- ---------------------------------------------------------------------------
+-- sp_GetAllPolicies
+-- ---------------------------------------------------------------------------
+DROP PROCEDURE IF EXISTS sp_GetAllPolicies;
+GO
+CREATE PROCEDURE sp_GetAllPolicies
+AS
+BEGIN
+    SET NOCOUNT ON;
+    SELECT DISTINCT id, Provider_type_desc, call_type, provider, providername,
+           call_type_desc, destination_desc, IsAll, Superimpose_train, LineType, LineTypeName
+    FROM   vwManageCalltype
+    WHERE  isadmin = 1
+    ORDER  BY provider, Provider_Type_Desc, Call_Type;
+END
+GO
+
+-- ---------------------------------------------------------------------------
+-- sp_LoadTmpBillIds
+-- ---------------------------------------------------------------------------
+DROP PROCEDURE IF EXISTS sp_LoadTmpBillIds;
+GO
+CREATE PROCEDURE sp_LoadTmpBillIds
+    @BillIds VARCHAR(MAX)   -- comma-separated list
+AS
+BEGIN
+    SET NOCOUNT ON;
+    DELETE FROM tmp_bill_ids;
+
+    INSERT INTO tmp_bill_ids (bill_ids)
+    SELECT CAST(value AS INT)
+    FROM   STRING_SPLIT(@BillIds, ',');
+END
+GO
+
+-- ---------------------------------------------------------------------------
+-- sp_GetBapiShadowTable
+-- ---------------------------------------------------------------------------
+DROP PROCEDURE IF EXISTS sp_GetBapiShadowTable;
+GO
+CREATE PROCEDURE sp_GetBapiShadowTable
+AS
+BEGIN
+    SET NOCOUNT ON;
+    SELECT * FROM tblUser_BAPI;
+END
+GO
+
+-- ---------------------------------------------------------------------------
+-- sp_SapMarkBillPosted
+-- ---------------------------------------------------------------------------
+DROP PROCEDURE IF EXISTS sp_SapMarkBillPosted;
+GO
+CREATE PROCEDURE sp_SapMarkBillPosted
+    @BillId INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+    UPDATE TblBills
+    SET    Posted = 'true', LastUpdatedON = GETDATE()
+    WHERE  Bill_ID = @BillId;
+END
+GO
+
+-- ---------------------------------------------------------------------------
+-- sp_SapInsertMsg
+-- ---------------------------------------------------------------------------
+DROP PROCEDURE IF EXISTS sp_SapInsertMsg;
+GO
+CREATE PROCEDURE sp_SapInsertMsg
+    @BillId  VARCHAR(50),
+    @Message VARCHAR(MAX),
+    @SentOn  VARCHAR(50),
+    @Posted  VARCHAR(10),
+    @Uid     VARCHAR(50),
+    @Amount  DECIMAL(18, 4)
+AS
+BEGIN
+    SET NOCOUNT ON;
+    INSERT INTO msg (BillID, Messag, date1, Posted, UID, Amount)
+    VALUES (@BillId, @Message, @SentOn, @Posted, @Uid, @Amount);
+END
+GO
+
+-- ---------------------------------------------------------------------------
+-- sp_SyncContractorData
+-- ---------------------------------------------------------------------------
+DROP PROCEDURE IF EXISTS sp_SyncContractorData;
+GO
+CREATE PROCEDURE sp_SyncContractorData
+AS
+BEGIN
+    SET NOCOUNT ON;
+    -- NOTE: This SP must be connected to the ContractorConnectionString via a linked server
+    -- or populated by a scheduled ETL job. Placeholder implementation below:
+
+    MERGE tblUser AS target
+    USING (
+        SELECT name + ' ' + surname AS EmpName,
+               EMPUSERID            AS UID,
+               Dept,
+               TITLE
+        FROM   View_tblEQL
+        WHERE  EMPNO = '' OR EMPNO IS NULL
+    ) AS source ON target.Username = source.UID
+    WHEN MATCHED THEN
+        UPDATE SET Org = REPLACE(source.Dept, '''', ''),
+                   description = REPLACE(source.TITLE, '''', ''),
+                   name = REPLACE(source.EmpName, '''', '')
+    WHEN NOT MATCHED THEN
+        INSERT (Uid, name, username, password, ManagerID, Org, email,
+                description, SecManagerID, OrManagerID, CostCenter, Contractor)
+        VALUES (123, REPLACE(source.EmpName,'',''), source.UID, '', 0,
+                REPLACE(source.Dept,'',''), '', REPLACE(source.TITLE,'',''),
+                0, 0, '', 1);
+END
+GO
+
+-- ---------------------------------------------------------------------------
+-- sp_ResetImportTable
+-- ---------------------------------------------------------------------------
+DROP PROCEDURE IF EXISTS sp_ResetImportTable;
+GO
+CREATE PROCEDURE sp_ResetImportTable
+AS
+BEGIN
+    SET NOCOUNT ON;
+    DECLARE @maxId INT = (SELECT ISNULL(MAX(ID), 0) FROM tblcallrecord);
+    DELETE FROM tblImport;
+    DBCC CHECKIDENT (tblImport, RESEED, @maxId);
+END
+GO
+
+-- ---------------------------------------------------------------------------
+-- sp_GetProviderList
+-- ---------------------------------------------------------------------------
+DROP PROCEDURE IF EXISTS sp_GetProviderList;
+GO
+CREATE PROCEDURE sp_GetProviderList
+AS
+BEGIN
+    SET NOCOUNT ON;
+    SELECT ID, Name, IsVoip, COUNTRYID FROM tblProvider;
+END
+GO
+
+-- ---------------------------------------------------------------------------
+-- sp_MarkEmailAsSent
+-- ---------------------------------------------------------------------------
+DROP PROCEDURE IF EXISTS sp_MarkEmailAsSent;
+GO
+CREATE PROCEDURE sp_MarkEmailAsSent
+    @Id INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    UPDATE tbl_Emails
+       SET sent = 1
+     WHERE Id = @Id;
+END
+GO
+
+
+ALTER TRIGGER [dbo].[TBLTRIGGER_tblSecrateryRole]
+ON [dbo].[tblSecrateryRole]
+AFTER INSERT, UPDATE
+
+AS 
+
+DECLARE @INS int, @DEL int
+
+SELECT @INS = COUNT(*) FROM INSERTED
+SELECT @DEL = COUNT(*) FROM DELETED
+
+IF @INS > 0 AND @DEL > 0 
+BEGIN
+
+    -- a record got updated, so log accordingly.
+    
+    
+    INSERT INTO TBL_AT_DETAILS (NEW_VALUE,OLD_VALUE) values( '(Abc)'+(select SecrateryID from inserted) , (select SecrateryID from deleted))
+    INSERT INTO TBL_AT_DETAILS (NEW_VALUE,OLD_VALUE) values( (select ManagerID from inserted) , (select ManagerID from deleted))
+    INSERT INTO TBL_AT_DETAILS (NEW_VALUE,OLD_VALUE) values( (select CanApprove from inserted) , (select CanApprove from deleted))
+    INSERT INTO TBL_AT_DETAILS (NEW_VALUE,OLD_VALUE) values( (select CanApprove from inserted) , (select CanApprove from deleted))
+    
+    
+    
+    DELETE FROM TBL_AT_DETAILS WHERE NEW_VALUE = OLD_VALUE; 
+    DELETE FROM TBL_AT_DETAILS WHERE NEW_VALUE is Null and OLD_VALUE is null; 
+    
+
+    
+END
+GO
+
+
+
+
+PRINT 'All stored procedures created successfully.';
 GO

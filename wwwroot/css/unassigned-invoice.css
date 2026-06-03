@@ -1,0 +1,43 @@
+/* ============================================================================
+   unassigned-invoice.css — styles for Views/Import/UnAssignedInvoice.cshtml
+
+   The shared grid / toolbar / search / modal chrome (.tel-grid-wrap, .tel-toolbar,
+   .tel-search, .tel-modal, .tel-modal-hdr, .tel-input) is defined GLOBALLY in
+   site.css and is identical across Manage Employee, Force Bill, etc. This page
+   inherits that theme directly — only the page-specific toolbar buttons live
+   here, so the grid and modal always match Manage Employee.
+   ============================================================================ */
+
+.uai-page { padding: 4px 0 16px; }
+
+/* Teal "Assign Records" toolbar button (same as Manage Employee's Add button) */
+.uai-page .tel-toolbar .btn-add-tel { background: var(--teal, #2ab3bf); border: 0; color: #fff; }
+.uai-page .tel-toolbar .btn-add-tel:hover { background: var(--teal-dk, #1e8f99); color: #fff; }
+
+/* Green "Export to Excel" button (mirrors Manage Employee .emp-btn-export) */
+.uai-page .emp-btn-export {
+    background: #1d6f42; border: 0; color: #fff;
+    padding: 6px 16px; border-radius: 7px; font-size: 13px; font-weight: 600;
+    display: inline-flex; align-items: center; gap: 6px;
+}
+.uai-page .emp-btn-export:hover { background: #165a36; color: #fff; }
+
+/* Confirmation text inside the assign modal */
+.uai-confirm-text { font-size: 14px; color: var(--tx2, #334155); line-height: 1.55; }
+
+/* ── Responsive: stack grid into cards down to 250px (Manage Employee pattern) ── */
+@media (max-width: 575.98px) {
+    .uai-page .tel-grid-wrap table.dataTable thead { display: none; }
+    .uai-page .tel-grid-wrap table.dataTable tbody tr {
+        display: block; border: 1px solid var(--bd, #e5e7eb); border-radius: 8px;
+        margin-bottom: 10px; padding: 4px 0;
+    }
+    .uai-page .tel-grid-wrap table.dataTable tbody td {
+        display: flex; justify-content: space-between; align-items: center;
+        text-align: right; border: 0; padding: 6px 10px;
+    }
+    .uai-page .tel-grid-wrap table.dataTable tbody td::before {
+        content: attr(data-label); font-weight: 600; color: #1a3a6e;
+        text-align: left; padding-right: 10px;
+    }
+}
