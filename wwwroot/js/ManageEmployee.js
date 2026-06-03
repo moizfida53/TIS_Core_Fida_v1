@@ -191,7 +191,13 @@
     function renderEmployeeGrid() {
         if (dtEmployees) { dtEmployees.destroy(); dtEmployees = null; }
         var rows = '';
-        (employees || []).forEach(function (e) {
+        // Default: show only ACTIVE employees. When "Show In-Active Employees"
+        // is checked, show only INACTIVE employees instead.
+        var onlyInactive = $('#chkShowInactive').is(':checked');
+        var list = (employees || []).filter(function (e) {
+            return onlyInactive ? (e.isActive !== true) : (e.isActive === true);
+        });
+        list.forEach(function (e) {
             var isActive    = (e.isActive === true);
             var inactiveCls = isActive ? '' : 'emp-inactive';
             rows +=
@@ -680,6 +686,7 @@
         // Sync AD + Export
         $(document).on('click', '#btnSyncAD',      function () { syncAD(); });
         $(document).on('click', '#btnExportExcel', function () { exportToExcel(); });
+        $(document).on('change', '#chkShowInactive', function () { renderEmployeeGrid(); });
 
         // AD search (next to Username) — require a username first
         $(document).on('click', '#btnAdSearch', function () {

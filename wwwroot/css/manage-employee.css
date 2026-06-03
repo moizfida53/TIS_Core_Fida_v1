@@ -150,9 +150,36 @@
 #tblEmployees tbody tr.emp-inactive td {
     color: #9ca3af; font-style: italic;
     background: #fff8f8 !important;
-    text-decoration: line-through;
-    text-decoration-color: #fca5a5;
 }
+
+/* ── "Show In-Active Employees" filter (styled pill) ──────────────────────── */
+.emp-inactive-filter {
+    display: inline-flex; align-items: center; gap: 10px;
+    padding: 7px 16px; border-radius: 30px;
+    background: #f1f5f9; border: 1.5px solid #e2e8f0;
+    transition: all .15s; cursor: pointer; user-select: none;
+}
+.emp-inactive-filter:hover { border-color: var(--teal, #2ab3bf); background: #fff; }
+.emp-inactive-filter .form-check-input {
+    width: 22px; height: 22px; margin: 0; float: none; cursor: pointer;
+    border: 1.5px solid #cbd5e1; box-shadow: none;
+}
+.emp-inactive-filter .form-check-input:checked {
+    background-color: var(--teal, #2ab3bf); border-color: var(--teal, #2ab3bf);
+}
+.emp-inactive-filter .form-check-input:focus {
+    border-color: var(--teal, #2ab3bf); box-shadow: 0 0 0 3px rgba(42, 179, 191, .2);
+}
+.emp-inactive-filter .form-check-label {
+    font-size: 14.5px; font-weight: 600; color: var(--tx2, #334155);
+    cursor: pointer; margin: 0; letter-spacing: .2px;
+}
+.emp-inactive-filter .form-check-label .fa { color: var(--teal-dk, #1e8f99); }
+/* When active, make the whole pill pop in teal */
+.emp-inactive-filter:has(.form-check-input:checked) {
+    background: rgba(42, 179, 191, .12); border-color: var(--teal, #2ab3bf);
+}
+.emp-inactive-filter:has(.form-check-input:checked) .form-check-label { color: var(--teal-dk, #1e8f99); }
 
 /* ── Export button ────────────────────────────────────────────────────────── */
 .emp-btn-export {
